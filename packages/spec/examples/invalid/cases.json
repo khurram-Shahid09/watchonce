@@ -1,0 +1,19 @@
+{
+  "$comment": "Each case is a JSON Patch-like list of overrides applied to examples/acme-create-invoice.json; every resulting spec MUST be rejected by the JSON Schema.",
+  "cases": [
+    { "name": "wrong spec_version", "set": { "spec_version": "2.0" } },
+    { "name": "unknown top-level field", "set": { "script": "console.log(1)" } },
+    { "name": "empty steps", "set": { "steps": [] } },
+    { "name": "no allowed domains", "set": { "allowed_domains": [] } },
+    { "name": "domain with scheme", "set": { "allowed_domains": ["https://portal.acme-demo.com"] } },
+    { "name": "input name not snake_case", "set": { "inputs": [{ "name": "VendorName", "type": "string" }] } },
+    { "name": "unknown action", "set": { "steps": [{ "id": "s1", "action": "eval", "intent": "Run code", "code": "1" }] } },
+    { "name": "click without target", "set": { "steps": [{ "id": "s1", "action": "click", "intent": "Click" }] } },
+    { "name": "locator with unknown kind", "set": { "steps": [{ "id": "s1", "action": "click", "intent": "Click", "target": { "locators": [{ "kind": "coords", "value": "10,20" }] } }] } },
+    { "name": "select with both value and label", "set": { "steps": [{ "id": "s1", "action": "select", "intent": "Pick", "target": { "locators": [{ "kind": "label", "value": "Vendor" }] }, "value": "a", "label": "b" }] } },
+    { "name": "select with neither value nor label", "set": { "steps": [{ "id": "s1", "action": "select", "intent": "Pick", "target": { "locators": [{ "kind": "label", "value": "Vendor" }] } }] } },
+    { "name": "element_visible without target", "set": { "steps": [{ "id": "s1", "action": "wait_for", "intent": "Wait", "condition": { "type": "element_visible" } }] } },
+    { "name": "heal confidence above 1", "set": { "settings": { "auto_approve_heal_min_confidence": 1.5 } } },
+    { "name": "bad heal policy", "set": { "settings": { "heal_policy": "always" } } }
+  ]
+}

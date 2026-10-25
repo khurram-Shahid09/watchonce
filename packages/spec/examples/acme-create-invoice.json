@@ -1,0 +1,88 @@
+{
+  "spec_version": "1.0",
+  "name": "Create vendor invoice in Acme Portal",
+  "description": "Creates a new invoice for an existing vendor and records the invoice number.",
+  "allowed_domains": ["portal.acme-demo.com"],
+  "start_url": "https://portal.acme-demo.com/login",
+  "inputs": [
+    { "name": "vendor_name", "type": "string", "required": true, "example": "Northwind Ltd", "description": "Vendor as shown in the vendor dropdown" },
+    { "name": "amount", "type": "number", "required": true, "example": 1250.5 },
+    { "name": "due_date", "type": "date", "required": true, "example": "2026-11-15", "format_hint": "MM/DD/YYYY in the portal" }
+  ],
+  "secrets": [{ "name": "acme_login", "fields": ["username", "password"] }],
+  "outputs": [{ "name": "invoice_number", "type": "string" }],
+  "steps": [
+    { "id": "s1", "action": "navigate", "intent": "Open the portal login page", "url": "https://portal.acme-demo.com/login" },
+    {
+      "id": "s2", "action": "fill", "intent": "Enter username",
+      "target": { "locators": [{ "kind": "label", "value": "Username" }, { "kind": "css", "value": "#username" }] },
+      "value": "{{secrets.acme_login.username}}"
+    },
+    {
+      "id": "s3", "action": "fill", "intent": "Enter password",
+      "target": { "locators": [{ "kind": "label", "value": "Password" }, { "kind": "css", "value": "#password" }] },
+      "value": "{{secrets.acme_login.password}}"
+    },
+    {
+      "id": "s4", "action": "click", "intent": "Sign in",
+      "target": { "locators": [{ "kind": "role", "role": "button", "name": "Sign in" }, { "kind": "css", "value": "form button[type=submit]" }] }
+    },
+    { "id": "s5", "action": "wait_for", "intent": "Dashboard loaded", "condition": { "type": "url_matches", "value": "/dashboard" } },
+    {
+      "id": "s6", "action": "click", "intent": "Open new invoice form",
+      "target": {
+        "locators": [
+          { "kind": "testid", "value": "new-invoice-btn" },
+          { "kind": "role", "role": "button", "name": "New invoice" },
+          { "kind": "text", "value": "New invoice", "exact": true },
+          { "kind": "css", "value": "#toolbar > button.btn-primary:nth-of-type(2)" }
+        ],
+        "fingerprint": {
+          "tag": "button",
+          "role": "button",
+          "accessible_name": "New invoice",
+          "text": "New invoice",
+          "attributes": { "id": "btn-new", "class": "btn btn-primary", "type": "button" },
+          "nearby_text": ["Invoices", "Export CSV"],
+          "bbox_norm": [0.71, 0.12, 0.09, 0.04],
+          "frame_path": []
+        },
+        "anchor_image_ref": "frames/rec_01J/s6_crop.webp"
+      }
+    },
+    {
+      "id": "s7", "action": "select", "intent": "Choose the vendor",
+      "target": { "locators": [{ "kind": "label", "value": "Vendor" }, { "kind": "css", "value": "#vendor" }] },
+      "label": "{{vendor_name}}"
+    },
+    {
+      "id": "s8", "action": "fill", "intent": "Enter invoice amount",
+      "target": { "locators": [{ "kind": "label", "value": "Amount" }, { "kind": "css", "value": "#amount" }] },
+      "value": "{{amount | number:2}}"
+    },
+    {
+      "id": "s9", "action": "fill", "intent": "Enter due date",
+      "target": { "locators": [{ "kind": "label", "value": "Due date" }, { "kind": "css", "value": "#due-date" }] },
+      "value": "{{due_date | date:\"MM/DD/YYYY\"}}"
+    },
+    {
+      "id": "s10", "action": "click", "intent": "Submit the invoice",
+      "target": { "locators": [{ "kind": "role", "role": "button", "name": "Submit" }, { "kind": "css", "value": "#submit-invoice" }] },
+      "checkpoint": { "type": "approval", "reason": "Creates a payable invoice" }
+    },
+    { "id": "s11", "action": "assert", "intent": "Confirmation shown", "condition": { "type": "text_visible", "value": "Invoice created" } },
+    {
+      "id": "s12", "action": "extract", "intent": "Read the new invoice number",
+      "target": { "locators": [{ "kind": "testid", "value": "invoice-number" }, { "kind": "css", "value": ".invoice-number" }] },
+      "output": "invoice_number",
+      "pattern": "INV-\\d+"
+    }
+  ],
+  "settings": {
+    "default_timeout_ms": 15000,
+    "heal_policy": "approve",
+    "auto_approve_heal_min_confidence": 0.9,
+    "slow_mo_ms": 0
+  },
+  "source": { "recording_id": "rec_01JAXAMPLE", "compiled_by": "claude-opus-5-5", "compiled_at": "2026-10-25T10:00:00Z" }
+}

@@ -6,7 +6,7 @@
 |---|---|---|---|
 | N1 | **Gemini API key** (free tier, Google AI Studio) | Day 6 | Paste into `GEMINI_API_KEY` in the local `.env`. For local development with fake demo data only. |
 | N2 | **Anthropic API key** with billing enabled (console.anthropic.com) | Before demo recording / evals (~Day 12) | Set a monthly spend limit (e.g. $30–50 for evals + demo) |
-| N3 | **Cloudflare R2** bucket + access keys | Day 5 (MinIO locally until then) | Can reuse the existing Cloudflare account, in a separate bucket |
+| N3 | **Cloudflare R2** bucket + access keys | Day 5 (SeaweedFS S3 locally until then) | Can reuse the existing Cloudflare account, in a separate bucket |
 | N4 | **GitHub repo** | Day 1 | ✅ Done: `github.com/khurram-Shahid09/watchonce` (private) |
 | N5 | **Domain** | – | ✅ Not needed for the MVP: free `*.vercel.app` + `sslip.io` (see [13](13-deployment-ops.md)) |
 | N6 | **VPS** (Hetzner CX32 / DigitalOcean 4 vCPU 8 GB, ~US$15–30/mo) | Day 15 | Or start on a free trial credit |

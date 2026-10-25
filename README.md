@@ -121,6 +121,29 @@ watchonce/
 └─ docs/
 ```
 
+## Local development
+
+Prerequisites: Docker Desktop, Node 22 + pnpm 12, [uv](https://docs.astral.sh/uv/) (it installs Python 3.12).
+
+```bash
+cp .env.example .env                                  # then fill in DJANGO_SECRET_KEY and SECRETS_MASTER_KEY
+docker compose -f infra/docker-compose.yml up -d      # Postgres :5433, Redis :6379, S3 (SeaweedFS) :9000
+
+cd services/core
+uv sync
+uv run python manage.py migrate
+uv run python manage.py createsuperuser
+uv run uvicorn config.asgi:application --reload --port 8000   # API: /healthz, /readyz, /api/v1/docs/, /admin/
+uv run celery -A config worker -Q compile,run,heal --pool=solo -l info   # --pool=solo on Windows
+uv run pytest
+
+cd ../..
+pnpm install
+pnpm dev:web                                          # dashboard on http://localhost:3000
+```
+
+The workflow spec lives in [`packages/spec/workflow.schema.json`](packages/spec/workflow.schema.json). After changing it, regenerate both type bindings: `pnpm spec:gen` (TypeScript) and `uv run python scripts/gen_spec_models.py` in `services/core` (Pydantic). CI fails if either is stale.
+
 ## Author
 
 **Khurram Shahid**: Flutter & full-stack engineer, building in AI automation.
