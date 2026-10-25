@@ -54,6 +54,9 @@ with tempfile.TemporaryDirectory() as profile, sync_playwright() as p:
 
     page = ctx.new_page()
     page.goto(f"{PORTAL}/login?variant=original")
+    # Like browser autofill: the login form is already filled before recording starts.
+    page.get_by_label("Username").fill("sara")
+    page.get_by_label("Password").fill(PASSWORD)
     page.bring_to_front()
     tab_id = worker.evaluate(
         "async () => (await chrome.tabs.query({url: 'http://localhost:3001/*'}))[0].id"
@@ -78,8 +81,6 @@ with tempfile.TemporaryDirectory() as profile, sync_playwright() as p:
         if text is not None:
             locator.press_sequentially(text, delay=35)
 
-    act(page.get_by_label("Username"), "sara")
-    act(page.get_by_label("Password"), PASSWORD)
     act(page.get_by_role("button", name="Sign in"))
     page.wait_for_url("**/dashboard")
     act(page.get_by_role("link", name="Invoices", exact=True))
@@ -147,6 +148,8 @@ by = lambda t: [e for e in events if e["type"] == t]  # noqa: E731
 named = lambda t, name: [e for e in by(t) if (e["element"] or {}).get("accessible_name") == name]  # noqa: E731
 
 check(PASSWORD not in raw, "the password never appears anywhere in the recording")
+user = [e for e in by("input") if (e["element"] or {}).get("label_text") == "Username"]
+check(len(user) == 1 and user[0]["value"] == "sara" and user[0].get("prefilled"), "autofilled username recorded (prefilled) before Sign in")
 check("4111" not in raw, "a card number typed into a normal field is masked")
 pw = [e for e in by("input") if (e["element"] or {}).get("attrs", {}).get("type") == "password"]
 check(len(pw) == 1 and pw[0]["value"] == "__SECRET__" and pw[0]["value_masked"], "password input recorded as __SECRET__ once")

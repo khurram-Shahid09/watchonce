@@ -274,3 +274,17 @@ def test_real_recording_acme_v2() -> None:
         "http://localhost:3001/invoices/INV-"
     )
     assert "acme-demo" not in json.dumps(result)
+
+
+def test_prefilled_values_become_fills_with_a_note() -> None:
+    pw = el("#pw", tag="input", role="textbox", name="Password", label_text="Password")
+    result = (
+        start()
+        .add("input", FIELD, value="sara", prefilled=True)
+        .add("input", pw, value="__SECRET__", value_masked=True, prefilled=True)
+        .add("click", el("#signin", name="Sign in"))
+        .run()
+    )
+    assert actions(result) == ["navigate", "fill", "fill", "click"]
+    assert result["candidates"][1]["notes"] == ["prefilled"]
+    assert result["candidates"][2]["value"] == "__SECRET__"

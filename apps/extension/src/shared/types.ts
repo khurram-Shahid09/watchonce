@@ -44,6 +44,7 @@ export interface RecordedEvent {
   value: string | null;
   value_masked: boolean;
   mask_reason?: string;
+  prefilled?: boolean; // input: the value was there already (autofill), not typed
   key?: string; // press
   option_label?: string; // select
   nav?: { transition: "link_or_script" | "history" | "reload" | "initial" };

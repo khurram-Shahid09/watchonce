@@ -70,6 +70,7 @@ class Event(_Lenient):
     value: str | None = None
     value_masked: bool = False
     mask_reason: str | None = None
+    prefilled: bool = False  # autofilled / already there, not typed
     key: str | None = None
     option_label: str | None = None
     nav: Nav | None = None

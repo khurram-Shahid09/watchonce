@@ -26,6 +26,7 @@ function start(): void {
   let pendingCapture: { id: number; el: Element } | null = null;
   let domChanged = true;
   let pendingInput: { el: Element; event: CapturedEvent; timer: number } | null = null;
+  const typed = new WeakSet<Element>(); // fields we saw being typed into
 
   const pill = new Pill({
     pause: () => send({ kind: "recording.pause" }),
@@ -163,6 +164,27 @@ function start(): void {
     if (el && isTextLike(el) && pendingCapture?.el !== el) void requestCapture(el);
   });
 
+  // Values that reached a form without typing: browser autofill, or text already there when
+  // recording started. Without them the replay would submit an empty login form. Recorded
+  // just before the click / Enter that submits, masked like typed values.
+  function recordUntypedFields(trigger: Element | null): void {
+    const form = trigger?.closest("form");
+    if (!form) return;
+    for (const field of Array.from(form.querySelectorAll("input, textarea"))) {
+      if (!isTextLike(field) || typed.has(field)) continue;
+      const input = field as HTMLInputElement;
+      if (!input.value || input.disabled || input.readOnly || !(input.offsetWidth || input.offsetHeight)) continue;
+      typed.add(field);
+      const masked = maskValue(field, input.value);
+      const event = base("input", field, null);
+      event.value = masked.value;
+      event.value_masked = masked.masked;
+      event.mask_reason = masked.reason;
+      event.prefilled = true;
+      emit(event);
+    }
+  }
+
   on("click", (e) => {
     if (e.button !== 0) return;
     const raw = realTarget(e);
@@ -170,6 +192,7 @@ function start(): void {
     const el = actionTarget(raw);
     if (isToggle(el) || labelledToggle(el)) return; // recorded from "change" instead
     flushInput();
+    recordUntypedFields(el);
     const event = base("click", el, captureIdFor(el));
     if (el.tagName === "CANVAS") event.warning = "Canvas clicks replay by position only (better support in v0.3).";
     if (el.tagName === "IFRAME") event.warning = "Actions inside embedded frames aren't recorded yet.";
@@ -184,6 +207,7 @@ function start(): void {
   on("input", (e) => {
     const el = realTarget(e);
     if (!el || !isTextLike(el)) return;
+    typed.add(el);
     const raw = (el as HTMLElement).isContentEditable ? (el as HTMLElement).innerText : (el as HTMLInputElement).value;
     const masked = maskValue(el, raw);
     if (masked.masked && !isSecretField(el)) el.setAttribute("data-wo-sensitive", "");
@@ -235,6 +259,7 @@ function start(): void {
     const el = realTarget(e);
     if (e.key === "Enter" && el?.tagName === "TEXTAREA") return; // a newline, not an action
     flushInput();
+    if (e.key === "Enter") recordUntypedFields(el);
     const target = el && el !== document.body ? el : null;
     const event = base("press", target, null);
     event.key = e.key;
