@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>WatchOnce Recorder</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="/icons/icon-32.png" alt="" width="20" height="20" />
+      <strong>WatchOnce</strong>
+      <span id="status-chip" class="chip">Idle</span>
+    </header>
+
+    <main>
+      <section id="view-idle" hidden>
+        <p class="muted">Do the task once while WatchOnce watches. Passwords are never captured.</p>
+        <p class="site" id="site"></p>
+        <button id="start" class="primary">● Start recording</button>
+        <p class="hint">Shortcut: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd></p>
+      </section>
+
+      <section id="view-recording" hidden>
+        <dl class="stats">
+          <div><dt>Time</dt><dd id="elapsed">0:00</dd></div>
+          <div><dt>Actions</dt><dd id="events">0</dd></div>
+          <div><dt>Screens</dt><dd id="frames">0</dd></div>
+        </dl>
+        <div class="row">
+          <button id="pause">Pause</button>
+          <button id="stop" class="danger">■ Stop</button>
+        </div>
+      </section>
+
+      <section id="view-stopped" hidden>
+        <label for="description">What does this task do?</label>
+        <textarea id="description" rows="3" maxlength="1000" placeholder="e.g. Create a vendor invoice from an email"></textarea>
+        <p class="muted" id="summary"></p>
+        <div class="row">
+          <button id="download" class="primary">Download recording</button>
+          <button id="discard">Discard</button>
+        </div>
+        <p class="hint">Uploading to your workspace arrives in the next build.</p>
+      </section>
+
+      <ul id="warnings" class="warnings"></ul>
+      <p id="error" class="error" role="alert" hidden></p>
+    </main>
+    <script type="module" src="./popup.ts"></script>
+  </body>
+</html>

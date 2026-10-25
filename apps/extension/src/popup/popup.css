@@ -1,0 +1,47 @@
+:root {
+  --fg: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #ffffff;
+  --primary: #1d4ed8;
+  --danger: #dc2626;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #f3f4f6;
+    --muted: #9ca3af;
+    --line: #374151;
+    --bg: #111827;
+    --primary: #3b82f6;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; width: 320px; font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--fg); background: var(--bg); }
+header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+header strong { flex: 1; font-size: 14px; }
+main { padding: 14px; }
+.chip { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--line); }
+.chip.recording { background: var(--danger); color: #fff; }
+.chip.paused { background: #d97706; color: #fff; }
+.chip.stopped { background: var(--primary); color: #fff; }
+.muted { color: var(--muted); margin: 0 0 10px; }
+.site { font-weight: 600; word-break: break-all; margin: 0 0 12px; }
+.hint { color: var(--muted); font-size: 11px; margin: 10px 0 0; }
+button { font: inherit; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: default; }
+button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+#start { width: 100%; padding: 10px; font-weight: 600; }
+.row { display: flex; gap: 8px; }
+.row button { flex: 1; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 12px; }
+.stats div { border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+dt { color: var(--muted); font-size: 11px; }
+dd { margin: 0; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+textarea { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); resize: vertical; margin-bottom: 8px; }
+.warnings { list-style: none; padding: 0; margin: 12px 0 0; }
+.warnings li { font-size: 12px; background: #fef3c7; color: #78350f; border-radius: 6px; padding: 6px 8px; margin-top: 6px; }
+.error { color: var(--danger); margin: 10px 0 0; }
+kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; }
