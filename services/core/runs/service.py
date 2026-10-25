@@ -3,7 +3,12 @@
 from datetime import date
 from typing import Any
 
+from django.db import transaction
+
 from secrets_vault.models import Secret
+
+from . import live
+from .models import CheckpointDecision, Run, RunStep
 
 
 def clean_inputs(
@@ -65,3 +70,30 @@ def missing_secrets(org, spec: dict[str, Any]) -> list[str]:
             if field not in have.get(ref["name"], set()):
                 missing.append(f"{ref['name']}.{field}")
     return missing
+
+
+def approve_waiting_run(run: Run, user, note: str) -> None:
+    """Record an approval for the step ``run`` waits at and wake its runner."""
+    with transaction.atomic():
+        locked = Run.objects.select_for_update().get(pk=run.pk)
+        if locked.status != Run.Status.AWAITING_APPROVAL:
+            return
+        waiting = (
+            RunStep.objects.filter(run=locked, step_id=locked.current_step_id)
+            .order_by("-seq")
+            .first()
+        )
+        CheckpointDecision.objects.get_or_create(
+            run=locked,
+            step_id=locked.current_step_id,
+            defaults={
+                "org_id": locked.org_id,
+                "decision": CheckpointDecision.Decision.APPROVE,
+                "decided_by": user,
+                "note": note,
+                "screenshot_ref": waiting.screenshot_ref if waiting else "",
+            },
+        )
+        locked.status = Run.Status.RUNNING
+        locked.save(update_fields=["status", "updated_at"])
+        transaction.on_commit(lambda: live.send_decision(locked.id, "approve"))

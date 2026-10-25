@@ -42,6 +42,13 @@ export function VersionsView({ workflow, viewing, isOwner }: { workflow: Workflo
               <Link href={`/workflows/${workflow.id}?v=${v.version}`} className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-canvas">
                 View
               </Link>
+              <a
+                href={`/bff/workflows/${workflow.id}/versions/${v.version}/export`}
+                className="rounded-md border border-line px-3 py-1.5 text-sm hover:bg-canvas"
+                title="A standalone Playwright (Python) script of this version"
+              >
+                Download script
+              </a>
               {isOwner && v.status !== "active" && (
                 <ActionButton
                   action={activateVersion.bind(null, workflow.id, v.version)}

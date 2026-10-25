@@ -431,6 +431,7 @@ class Executor:
             }
         )
         log.info("run %s waiting for approval at %s", self.run.id, step["id"])
+        self._batch_approval()
         began = time.monotonic()
         decision = self.live.wait_for_decision(self.run.id, settings.RUN_CHECKPOINT_TIMEOUT_S)
         self.waited += time.monotonic() - began
@@ -447,6 +448,18 @@ class Executor:
         if decision == "reject":
             raise RunStopped("rejected", f"Step {step['id']} was rejected.")
         self.publish({"type": "approved", "step_id": step["id"]})
+
+    def _batch_approval(self) -> None:
+        """In a batch an owner may have approved every checkpoint at once: answer this one
+        the same way (recorded as a checkpoint decision, like a click on Approve)."""
+        from runs.models import Batch
+        from runs.service import approve_waiting_run
+
+        if not self.run.batch_id:
+            return
+        batch = Batch.objects.filter(pk=self.run.batch_id, approve_all=True).first()
+        if batch is not None:
+            approve_waiting_run(self.run, batch.approved_by, "Approved for the whole batch")
 
     # --- artifacts ----------------------------------------------------------------------
 

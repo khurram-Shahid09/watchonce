@@ -45,6 +45,12 @@ load spec (pinned version) → validate → resolve inputs/secrets → new brows
 - **Artifacts**: one JPEG after every step under `org/{org}/runs/{run}/`, plus the approval screenshot (kept on the checkpoint decision). Each screenshot is also published as a live frame.
 - Playwright's sync API runs an event loop in the worker thread, so the runner process sets `DJANGO_ALLOW_ASYNC_UNSAFE` (it's genuinely synchronous) and closes its DB connections after each run.
 
+### Batch and export notes (MVP)
+- A batch is one `execute_batch` task on the `run` queue that runs its rows' runs one by one; each row is a normal run (`triggered_by: batch`, `row_index`). Cancelling marks the remaining rows cancelled and stops the current one.
+- "Approve for all rows" (owner) sets `approve_all`; from then on the runner answers each checkpoint of the batch itself, recorded as a `CheckpointDecision` by that owner ("Approved for the whole batch").
+- Results CSV: the original columns, then `status`, `error`, `run_id` and one column per output.
+- The Playwright export (`engine/export/playwright.py`) is plain code per step; all spec strings are embedded with `repr`, and a test runs the generated script against the runner test site.
+
 ## Self-healing ladder
 
 When locating fails, the runner climbs the ladder. It stops at the first rung that succeeds.

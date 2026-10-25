@@ -135,6 +135,7 @@ SPECTACULAR_SETTINGS = {
         "RunStatusEnum": "runs.models.Run.Status",
         "RunStepStatusEnum": "runs.models.RunStep.Status",
         "HealDecisionEnum": "runs.models.HealEvent.Decision",
+        "BatchStatusEnum": "runs.models.Batch.Status",
         "ApproveRejectEnum": ["approve", "reject"],
     },
 }

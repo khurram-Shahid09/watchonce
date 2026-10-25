@@ -12,6 +12,7 @@ urlpatterns = [
     path(V, views.VersionDetailView.as_view(), name="version-detail"),
     path(V + "/activate", views.VersionActivateView.as_view(), name="version-activate"),
     path(V + "/sop", views.VersionSopView.as_view(), name="version-sop"),
+    path(V + "/export/playwright", views.VersionExportView.as_view(), name="version-export"),
     path(
         W + "/screenshots/<path:name>", views.ScreenshotView.as_view(), name="workflow-screenshot"
     ),

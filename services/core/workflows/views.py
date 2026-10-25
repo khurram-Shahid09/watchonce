@@ -1,8 +1,9 @@
 """Workflows and their immutable versions (docs/10-api-spec.md "Workflows")."""
 
+import re
 from typing import Any
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
@@ -252,4 +253,31 @@ class ScreenshotView(_VersionMixin, generics.GenericAPIView):
         url = get_storage().presign_get(recording.key(name), SCREENSHOT_TTL)
         response = HttpResponseRedirect(url)
         response["Cache-Control"] = f"private, max-age={SCREENSHOT_TTL // 2}"
+        return response
+
+
+class VersionExportView(_VersionMixin, generics.GenericAPIView):
+    """``GET /workflows/{id}/versions/{v}/export/playwright``: a standalone Python script."""
+
+    queryset = WorkflowVersion.objects.all()
+    serializer_class = VersionSerializer
+
+    @extend_schema(responses={(200, "text/x-python"): str})
+    def get(self, request: Request, *args, **kwargs) -> HttpResponse:
+        from engine.export.playwright import export_playwright
+
+        version = self.version()
+        script = export_playwright(version.spec, version=version.version)
+        slug = (
+            re.sub(r"[^a-z0-9]+", "_", version.workflow.name.lower()).strip("_")[:50] or "workflow"
+        )
+        response = HttpResponse(script, content_type="text/x-python; charset=utf-8")
+        response["Content-Disposition"] = f'attachment; filename="{slug}_v{version.version}.py"'
+        record(
+            "workflow.exported",
+            org=self.org,
+            request=request,
+            entity=version,
+            metadata={"format": "playwright"},
+        )
         return response

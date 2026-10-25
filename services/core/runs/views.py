@@ -7,11 +7,18 @@ from typing import Any, cast
 
 from asgiref.sync import sync_to_async
 from django.db import transaction
-from django.http import HttpRequest, HttpResponseRedirect, JsonResponse, StreamingHttpResponse
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseRedirect,
+    JsonResponse,
+    StreamingHttpResponse,
+)
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import exceptions, generics, status
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -23,8 +30,11 @@ from common.storage import get_storage
 from workflows.models import Workflow
 
 from . import live
-from .models import CheckpointDecision, HealEvent, Run, RunStep
+from .models import Batch, CheckpointDecision, HealEvent, Run, RunStep
 from .serializers import (
+    BatchCreateSerializer,
+    BatchDetailSerializer,
+    BatchSerializer,
     CheckpointDecisionInputSerializer,
     HealDecisionSerializer,
     HealSerializer,
@@ -32,7 +42,7 @@ from .serializers import (
     RunDetailSerializer,
     RunSerializer,
 )
-from .service import clean_inputs, missing_secrets
+from .service import approve_waiting_run, clean_inputs, missing_secrets
 
 SCREENSHOT_TTL = 10 * 60
 
@@ -390,3 +400,192 @@ class HealDecisionView(OrgScopedViewMixin, generics.GenericAPIView):
             )
         heal.refresh_from_db()
         return Response(HealSerializer(heal).data)
+
+
+# --- Batches (docs/10-api-spec.md "Runs": batches) ---
+
+
+def _enqueue_batch(batch_id: str) -> None:
+    from engine.runner.tasks import execute_batch
+
+    execute_batch.delay(batch_id)
+
+
+class WorkflowBatchesView(OrgScopedViewMixin, generics.ListCreateAPIView):
+    queryset = Batch.objects.select_related("version", "workflow", "approved_by")
+    serializer_class = BatchSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(workflow_id=self.kwargs["workflow_id"])
+            .order_by("-created_at", "-id")
+        )
+
+    @extend_schema(
+        request={"multipart/form-data": BatchCreateSerializer}, responses={202: BatchSerializer}
+    )
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        from .batches import BatchFileError, default_column_map, parse_csv, validate_rows
+
+        workflow = get_object_or_404(
+            Workflow.objects.for_org(self.org).filter(archived_at__isnull=True),
+            pk=kwargs["workflow_id"],
+        )
+        data = BatchCreateSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        wanted = data.validated_data.get("version")
+        version = (
+            workflow.versions.filter(version=wanted).first() if wanted else workflow.active_version
+        )
+        if version is None:
+            raise ApiError("version_not_found", "That version doesn't exist.", status_code=404)
+        upload = data.validated_data["file"]
+        try:
+            columns, rows = parse_csv(upload.read())
+        except BatchFileError as exc:
+            raise ApiError("invalid_file", str(exc), status_code=422) from None
+        column_map = data.validated_data.get("column_map") or default_column_map(
+            version.spec, columns
+        )
+        if not isinstance(column_map, dict) or any(c not in columns for c in column_map.values()):
+            raise ApiError(
+                "invalid_column_map",
+                "column_map must map input names to CSV columns.",
+                status_code=422,
+            )
+        cleaned, errors = validate_rows(version.spec, rows, column_map)
+        if errors:
+            raise ApiError(
+                "invalid_rows",
+                f"{len(errors)} problem(s) in the file. Nothing was started.",
+                status_code=422,
+                details={
+                    "errors": dict(list(errors.items())[:20]),
+                    "columns": columns,
+                    "column_map": column_map,
+                },
+            )
+        missing = missing_secrets(self.org, version.spec)
+        if missing:
+            raise ApiError(
+                "missing_secrets",
+                "Save the logins this workflow uses before running it.",
+                status_code=409,
+                details={"missing": missing},
+            )
+        user = cast(User, request.user)
+        with transaction.atomic():
+            batch = Batch.objects.create(
+                org=self.org,
+                workflow=workflow,
+                version=version,
+                user=user,
+                file_name=(getattr(upload, "name", "") or "")[:200],
+                columns=columns,
+                rows=rows,
+                column_map=column_map,
+                total=len(rows),
+            )
+            for n, values in enumerate(cleaned, start=1):
+                Run.objects.create(
+                    org=self.org,
+                    workflow=workflow,
+                    version=version,
+                    user=user,
+                    triggered_by="batch",
+                    inputs=values,
+                    batch=batch,
+                    row_index=n,
+                )
+            record(
+                "batch.started",
+                org=self.org,
+                request=request,
+                entity=batch,
+                metadata={
+                    "workflow_id": workflow.id,
+                    "rows": len(rows),
+                    "version": version.version,
+                },
+            )
+            transaction.on_commit(lambda: _enqueue_batch(batch.id))
+        return Response(BatchSerializer(batch).data, status=status.HTTP_202_ACCEPTED)
+
+
+class BatchDetailView(OrgScopedViewMixin, generics.RetrieveAPIView):
+    queryset = Batch.objects.select_related("version", "workflow", "approved_by").prefetch_related(
+        "runs"
+    )
+    serializer_class = BatchDetailSerializer
+    lookup_url_kwarg = "batch_id"
+
+
+class BatchResultsView(OrgScopedViewMixin, generics.GenericAPIView):
+    queryset = Batch.objects.all()
+    serializer_class = BatchSerializer
+    lookup_url_kwarg = "batch_id"
+
+    @extend_schema(responses={(200, "text/csv"): str})
+    def get(self, request: Request, *args, **kwargs) -> HttpResponse:
+        from .batches import results_csv
+
+        batch = self.get_object()
+        body = results_csv(batch, list(batch.runs.all()))
+        # The byte-order mark makes Excel read the file as UTF-8.
+        response = HttpResponse("﻿" + body, content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = f'attachment; filename="results-{batch.id}.csv"'
+        return response
+
+
+class BatchApproveAllView(OrgScopedViewMixin, generics.GenericAPIView):
+    """Approve every checkpoint of this batch from now on, including the one waiting now.
+    Owners only, after reviewing a checkpoint (docs/08 "Batch runs")."""
+
+    queryset = Batch.objects.select_related("version", "workflow", "approved_by")
+    serializer_class = BatchSerializer
+    lookup_url_kwarg = "batch_id"
+    owner_methods = frozenset({"POST"})
+
+    @extend_schema(request=None, responses={200: BatchSerializer})
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        batch = self.get_object()
+        if batch.status in (Batch.Status.FINISHED, Batch.Status.CANCELLED):
+            raise ApiError("batch_finished", "This batch has already finished.", status_code=409)
+        user = cast(User, request.user)
+        batch.approve_all, batch.approved_by = True, user
+        batch.save(update_fields=["approve_all", "approved_by", "updated_at"])
+        record(
+            "batch.approved_all",
+            org=self.org,
+            request=request,
+            entity=batch,
+            metadata={"rows": batch.total},
+        )
+        for run in batch.runs.filter(status=Run.Status.AWAITING_APPROVAL):
+            approve_waiting_run(run, user, "Approved for the whole batch")
+        return Response(BatchSerializer(batch).data)
+
+
+class BatchCancelView(OrgScopedViewMixin, generics.GenericAPIView):
+    queryset = Batch.objects.select_related("version", "workflow", "approved_by")
+    serializer_class = BatchSerializer
+    lookup_url_kwarg = "batch_id"
+
+    @extend_schema(request=None, responses={202: BatchSerializer})
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        batch = self.get_object()
+        if batch.status in (Batch.Status.FINISHED, Batch.Status.CANCELLED):
+            raise ApiError("batch_finished", "This batch has already finished.", status_code=409)
+        batch.status = Batch.Status.CANCELLED
+        batch.finished_at = timezone.now()
+        batch.save(update_fields=["status", "finished_at", "updated_at"])
+        batch.runs.filter(status=Run.Status.QUEUED).update(
+            status=Run.Status.CANCELLED, error_code="cancelled", finished_at=timezone.now()
+        )
+        for run in batch.runs.filter(status__in=[Run.Status.RUNNING, Run.Status.AWAITING_APPROVAL]):
+            live.request_cancel(run.id)
+        record("batch.cancelled", org=self.org, request=request, entity=batch)
+        return Response(BatchSerializer(batch).data, status=status.HTTP_202_ACCEPTED)
