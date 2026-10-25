@@ -4,10 +4,10 @@
 
 | # | Item | Needed by | Status / notes |
 |---|---|---|---|
-| N1 | **Gemini API key** (free tier, Google AI Studio) | Day 6 | For local development with fake demo data only |
+| N1 | **Gemini API key** (free tier, Google AI Studio) | Day 6 | Paste into `GEMINI_API_KEY` in the local `.env`. For local development with fake demo data only. |
 | N2 | **Anthropic API key** with billing enabled (console.anthropic.com) | Before demo recording / evals (~Day 12) | Set a monthly spend limit (e.g. $30–50 for evals + demo) |
 | N3 | **Cloudflare R2** bucket + access keys | Day 5 (MinIO locally until then) | Can reuse the existing Cloudflare account, in a separate bucket |
-| N4 | **GitHub repo** | Day 1 | ✅ Done: `github.com/khurram-Shahid09/watchonce` |
+| N4 | **GitHub repo** | Day 1 | ✅ Done: `github.com/khurram-Shahid09/watchonce` (private) |
 | N5 | **Domain** | – | ✅ Not needed for the MVP: free `*.vercel.app` + `sslip.io` (see [13](13-deployment-ops.md)) |
 | N6 | **VPS** (Hetzner CX32 / DigitalOcean 4 vCPU 8 GB, ~US$15–30/mo) | Day 15 | Or start on a free trial credit |
 | N7 | **Vercel** account linked to GitHub | Day 15 | Already in use for the portfolio |
@@ -26,7 +26,7 @@
 | D5 | Auth | **Own JWT + Google OAuth** | Clerk/Auth.js |
 | D6 | Demo target | **Our own Acme Vendor Portal** | Also one real public app (e.g. OrangeHRM demo) |
 | D7 | Data region | Default (US/EU) for MVP | Canadian region when a Canadian pilot asks |
-| D8 | License | **Open**: no license file yet (all rights reserved by default) | MIT (fully open), or MIT for spec + extension only |
+| D8 | License | ✅ **No license, private repo** (all rights reserved) | Revisit before making the repo public |
 | D9 | Timeline | 15 working days (demo-able cut at day 10) | Faster cut: skip batch + Google OAuth → demo at ~day 8 |
 
 ## Open product questions (answer during the pilot, not blocking)

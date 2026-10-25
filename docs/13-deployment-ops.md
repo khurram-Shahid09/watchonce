@@ -36,11 +36,14 @@ Runner concurrency rule of thumb: ~1 GB RAM per concurrent Chromium context unde
 ```dotenv
 # core
 APP_ENV=production
+DJANGO_SETTINGS_MODULE=config.settings.prod
+DJANGO_SECRET_KEY=***         # 50+ random chars; also signs JWTs (simplejwt)
+DJANGO_DEBUG=false
+DJANGO_ALLOWED_HOSTS=api.<vps-ip-dashed>.sslip.io
 APP_BASE_URL=https://watchonce.vercel.app
 API_BASE_URL=https://api.<vps-ip-dashed>.sslip.io
-DATABASE_URL=postgresql+psycopg://wo:***@postgres:5432/watchonce
+DATABASE_URL=postgres://watchonce:***@postgres:5432/watchonce
 REDIS_URL=redis://redis:6379/0
-JWT_SECRET=***                # 64+ random bytes
 SECRETS_MASTER_KEY=***        # base64 32 bytes; move to KMS later
 CORS_ORIGINS=https://watchonce.vercel.app
 
