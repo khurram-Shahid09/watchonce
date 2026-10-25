@@ -141,6 +141,9 @@ async function startRecording(tabId: number): Promise<RecordingSession> {
     capture_id: null,
   });
   await broadcast(session);
+  // The page as it was when recording started: if the first action leaves the page at once
+  // (e.g. an autofilled login's Sign in), it still has a picture to fall back on.
+  if (tab.windowId !== undefined) void capturePage(session, tab.windowId, url.href, "recording start");
   return session;
 }
 
@@ -298,6 +301,17 @@ chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
         : {}),
     });
   });
+});
+
+// Back on the recorded tab (e.g. after the popup or another tab had focus): make sure its
+// current page has a picture before the next action needs one.
+chrome.tabs.onActivated.addListener(({ tabId, windowId }) => {
+  void (async () => {
+    const session = await loadSession();
+    if (session?.status !== "recording" || session.tabId !== tabId) return;
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (tab?.url && !frameFor(tab.url)) await capturePage(session, windowId, tab.url, "tab activated");
+  })();
 });
 
 chrome.tabs.onCreated.addListener((tab) => {

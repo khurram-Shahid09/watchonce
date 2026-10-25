@@ -135,6 +135,8 @@ def _collect(events: list[Event], dropped: Counter[str]) -> list[_Item]:
                     dropped["merged_typing"] += 1
                 else:
                     item.value, item.values, item.value_masked = value, [value], ev.value_masked
+                    if ev.prefilled:
+                        item.notes.append("prefilled")
                     items.append(item)
             case "click" | "dblclick":
                 if (
