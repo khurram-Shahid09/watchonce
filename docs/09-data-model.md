@@ -1,6 +1,6 @@
 # 09 · Data Model (PostgreSQL)
 
-All tables have `id` (ULID, text, prefixed e.g. `wf_…`), `created_at`, `updated_at`. All tenant-owned tables have `org_id` and **every query is scoped by `org_id`** (enforced in the repository layer + tested).
+All tables have `id` (ULID, text, prefixed e.g. `wf_…`), `created_at`, `updated_at`. All tenant-owned tables have `org_id` and **every query is scoped by `org_id`** (enforced by an org-scoped Django model manager and DRF queryset mixins, and tested per endpoint). The tables below map to Django models in the apps listed in [03](03-architecture.md#repository-layout); `jsonb` columns are `JSONField`s.
 
 ```mermaid
 erDiagram

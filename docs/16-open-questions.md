@@ -20,7 +20,7 @@
 | # | Question | Decision / default | Alternatives |
 |---|---|---|---|
 | D1 | Product name | ✅ **WatchOnce** | – |
-| D2 | Backend language | **Python (FastAPI + Celery + Playwright Python)** | Node/TypeScript end-to-end |
+| D2 | Backend framework | ✅ **Django + DRF + Channels + Celery + Playwright (Python)** ([ADR-0004](adr/0004-python-backend-nextjs-frontend.md)) | – |
 | D3 | AI provider | ✅ **Pluggable**: Gemini free tier for development, Claude (`claude-opus-5-5`) for demo and real data, both in evals ([ADR-0005](adr/0005-pluggable-llm-provider.md)) | Final per-stage choice after E4 eval results |
 | D4 | Hosting | ✅ **Vercel (web + demo portal) + one VPS (API, workers, DB, Redis)**, no custom domain | Railway/Render, AWS |
 | D5 | Auth | **Own JWT + Google OAuth** | Clerk/Auth.js |

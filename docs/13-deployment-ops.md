@@ -14,7 +14,7 @@
 Vercel ─────────────── apps/web (Next.js)          https://watchonce.vercel.app
 VPS (4 vCPU / 8 GB, Ubuntu 24.04)
   Caddy (TLS via Let's Encrypt, reverse proxy)       https://api.<vps-ip-dashed>.sslip.io
-  ├─ api        (uvicorn, 2 workers)
+  ├─ api        (Django on uvicorn ASGI: DRF + Channels, 2 workers)
   ├─ worker-compile (celery -Q compile, concurrency 4)
   ├─ worker-run     (celery -Q run,heal, concurrency 2, Playwright image)
   ├─ postgres 16 (volume + nightly pg_dump → R2)
@@ -76,7 +76,7 @@ All secrets in a `.env` on the server with `chmod 600`, never committed. `gitlea
 ## Deploy process (MVP)
 1. PR → CI green → merge to `main`
 2. GitHub Actions builds and pushes images to GHCR (tag = git SHA)
-3. Action SSHes to the VPS: `docker compose pull && docker compose up -d` + `alembic upgrade head` (migrations are backward-compatible; expand → migrate → contract)
+3. Action SSHes to the VPS: `docker compose pull && docker compose up -d` + `python manage.py migrate` (migrations are backward-compatible; expand → migrate → contract)
 4. Vercel deploys web automatically from `main`
 5. Smoke test job: health endpoints + one canary run against the demo portal
 

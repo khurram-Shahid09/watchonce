@@ -108,7 +108,7 @@ Called only after deterministic fallbacks fail (see [08](08-runner-and-self-heal
 
 ## LLM provider abstraction
 
-All AI calls go through one interface in `services/core/app/llm/`, so the rest of the system never imports a vendor SDK directly:
+All AI calls go through one interface in `services/core/engine/llm/`, so the rest of the system never imports a vendor SDK directly:
 
 ```python
 class LLMProvider(Protocol):
@@ -134,7 +134,7 @@ class LLMProvider(Protocol):
 | Demo / pilot / any real customer data | Paid tier only (Claude by default) | Free tiers may allow the provider to use inputs to improve its products; real screenshots must never go there |
 
 ## Prompt & schema management
-- Prompts live in `services/core/app/llm/prompts/*.md`, versioned in git, with the prompt version stored on each compile/heal record
+- Prompts live in `services/core/engine/llm/prompts/*.md`, versioned in git, with the prompt version stored on each compile/heal record
 - Output schemas live next to the prompts and are tested in CI (schema must be accepted by the API's structured-output validator)
 - Every LLM call logs: model, prompt version, input/output tokens, cache read tokens, latency, cost, stop_reason
 

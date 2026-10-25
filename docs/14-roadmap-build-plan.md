@@ -17,7 +17,7 @@ A **demo-able cut lands at day 10**. Days 11–15 harden it to "production-shape
 ### Week 1: foundations + recording + compile
 | Day | Deliverable |
 |---|---|
-| **D1** | Monorepo scaffold (pnpm + uv), docker-compose (Postgres, Redis, MinIO), FastAPI skeleton, Alembic, Next.js shell, CI (lint/type/test). `packages/spec` JSON Schema v1 + examples + generated types. |
+| **D1** | Monorepo scaffold (pnpm + uv), docker-compose (Postgres, Redis, MinIO), Django project + DRF + Channels skeleton, settings split, Django admin, Next.js shell, CI (lint/type/test). `packages/spec` JSON Schema v1 + examples + generated types. |
 | **D2** | **Acme Vendor Portal** demo app (login, vendors, invoices list/form, custom dropdown, confirmation, invoice number) + UI-mutation toggle M1–M8 |
 | **D3** | Auth (register/login/refresh, PATs), orgs/memberships, audit log helper, tenant scoping + tests |
 | **D4** | Chrome extension: content script descriptors, masking, screenshots, IndexedDB buffer, popup Start/Stop/description |

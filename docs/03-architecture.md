@@ -10,7 +10,7 @@ flowchart LR
   end
 
   subgraph Backend["Backend (Docker)"]
-    API["API<br/>(FastAPI)"]
+    API["API<br/>(Django + DRF + Channels)"]
     Q[("Redis<br/>queue + pub/sub")]
     COMP["Compiler worker<br/>(Celery)"]
     RUN["Runner worker<br/>(Celery + Playwright)"]
@@ -133,16 +133,22 @@ watchonce/
 │     ├─ src/background.ts    # service worker: session, screenshots, upload
 │     ├─ src/content.ts       # event capture + element descriptors
 │     └─ src/popup/           # start/stop UI
-├─ services/core/             # Python 3.12, uv-managed
-│  ├─ app/api/                # FastAPI routers
-│  ├─ app/domain/             # models, services
-│  ├─ app/compiler/           # normalize.py, understand.py, locators.py, sop.py
-│  ├─ app/runner/             # executor.py, healer.py, checkpoints.py, live.py
-│  ├─ app/llm/                # Claude client wrapper, prompts/, schemas/
-│  ├─ app/workers/            # celery app + tasks
-│  └─ migrations/             # Alembic
+├─ services/core/             # Python 3.12, uv-managed Django project
+│  ├─ manage.py
+│  ├─ config/                 # settings/ (base, dev, prod), urls.py, asgi.py (Channels), celery.py
+│  ├─ accounts/               # Django app: users, orgs, memberships, API tokens, auth views
+│  ├─ recordings/             # Django app: recordings, presigned uploads
+│  ├─ workflows/              # Django app: workflows, versions, secret bindings, exports
+│  ├─ runs/                   # Django app: runs, batches, steps, checkpoints, consumers.py (WebSockets)
+│  ├─ heals/                  # Django app: heal events + decisions
+│  ├─ vault/                  # Django app: encrypted secrets
+│  ├─ audit/                  # Django app: append-only audit log
+│  └─ engine/                 # framework-agnostic core used by Celery tasks
+│     ├─ compiler/            # normalize.py, understand.py, locators.py, sop.py
+│     ├─ runner/              # executor.py, healer.py, checkpoints.py, live.py
+│     └─ llm/                 # LLMProvider interface, Claude + Gemini providers, prompts/, schemas/
 ├─ packages/spec/
-│  ├─ workflow.schema.json    # single source; TS + Pydantic types generated
+│  ├─ workflow.schema.json    # single source; TS types + Pydantic models generated
 │  └─ examples/
 ├─ demo/acme-portal/          # mock legacy portal with a UI-mutation toggle
 ├─ evals/                     # golden recordings, heal mutation suite, runner scripts

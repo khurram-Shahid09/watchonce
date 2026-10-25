@@ -55,7 +55,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  EXT["Chrome extension<br/>(recorder)"] --> API["FastAPI"]
+  EXT["Chrome extension<br/>(recorder)"] --> API["Django + DRF"]
   WEB["Next.js dashboard"] <--> API
   API --> DB[("PostgreSQL")]
   API --> Q[("Redis")]
@@ -71,7 +71,7 @@ flowchart LR
 |---|---|
 | Recorder | Chrome Extension (MV3), TypeScript |
 | Dashboard | Next.js, TypeScript, Tailwind, shadcn/ui |
-| API & workers | FastAPI, SQLAlchemy, Celery, Redis |
+| API & workers | Django, Django REST Framework, Channels, Celery, Redis |
 | Automation | Playwright (Chromium) |
 | AI | Pluggable provider: Claude (`claude-opus-5-5`) or Gemini |
 | Data | PostgreSQL, Cloudflare R2 |
@@ -113,7 +113,7 @@ flowchart LR
 watchonce/
 ├─ apps/web/            # Next.js dashboard
 ├─ apps/extension/      # Chrome MV3 recorder
-├─ services/core/       # FastAPI API + Celery workers (compiler, runner, healer)
+├─ services/core/       # Django + DRF API + Celery workers (compiler, runner, healer)
 ├─ packages/spec/       # Workflow spec JSON Schema + generated types
 ├─ demo/acme-portal/    # Mock "legacy" vendor portal for demos and evals
 ├─ evals/               # Golden recordings + UI-mutation heal suite
