@@ -141,7 +141,7 @@ uv run pytest
 
 cd ../..
 pnpm install
-pnpm dev:web                                          # dashboard on http://localhost:3000
+pnpm dev:web                                          # dashboard on http://localhost:3000 (sign in or create a workspace)
 pnpm dev:portal                                       # Acme demo portal on http://localhost:3001 (sara / acme-demo)
 pnpm --filter @watchonce/extension build              # recorder → load apps/extension/dist as an unpacked extension
 ```
