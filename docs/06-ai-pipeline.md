@@ -133,6 +133,18 @@ class LLMProvider(Protocol):
 | Evals | Both | Side-by-side comparison report (quality, cost, latency) |
 | Demo / pilot / any real customer data | Paid tier only (Claude by default) | Free tiers may allow the provider to use inputs to improve its products; real screenshots must never go there |
 
+## Implementation notes (MVP)
+- Code: `engine/llm/` (providers, prompts, shared message wording), `engine/compiler/` (normalize, prompting, assemble, sop, pipeline, Celery task).
+- **One output schema for both providers**, generated from the Pydantic models in `engine/llm/types.py`: every object closed, every field required, `""`/`[]` instead of null. A CI test checks this.
+- **Claude**: streamed `beta.messages` call with `output_config.format` (JSON schema) and per-stage `effort`, the system prompt marked `cache_control`, and `fallbacks: "default"` (server-side refusal fallback). `stop_reason` is checked before reading content: `refusal` and `max_tokens` become clear compile errors.
+- **Gemini**: `response_json_schema` with inline WebP frames. Free-tier capacity varies by model, so `GEMINI_FALLBACK_MODELS` are tried in order on 503/429 (the same idea as Claude's fallbacks). Safety blocks are treated as refusals.
+- **`LLM_PROVIDER=fake`**: a deterministic stand-in that applies the prompt's rules mechanically. Tests and CI use it; it is also handy offline.
+- **Check → retry**: the answer is checked against the candidates (every candidate exactly once, declared inputs, masked values must be secrets, valid output patterns), assembled, then validated with the spec validator. Problems from either are sent back once (`feedback`), then the compile fails with them.
+- **Safety rules enforced in assembly, whatever the model says**: a fully masked value is always a secret reference and a partly masked one can't be a constant; clicks and key presses whose intent or element name contains a risky verb get an approval checkpoint; the first navigation is kept.
+- **Outputs** the person never clicked (e.g. the new invoice number) are extracted from the page text with the model's regex, right after the step that makes them appear.
+- **SOP** failures never fail a compile: a plain SOP is rendered from the spec instead (`engine/compiler/sop.py`) and the user can "Rewrite with AI" later. Screenshots are referenced as `screenshot:<frame>` and resolved by the dashboard.
+- Every call is logged to `llm_calls` (tokens, cost, latency, stop reason, prompt version); compiles stop with `budget_exceeded` once a workspace reaches `LLM_MONTHLY_BUDGET_USD` this month. Free-tier Gemini is logged at $0.
+
 ## Prompt & schema management
 - Prompts live in `services/core/engine/llm/prompts/*.md`, versioned in git, with the prompt version stored on each compile/heal record
 - Output schemas live next to the prompts and are tested in CI (schema must be accepted by the API's structured-output validator)

@@ -30,6 +30,8 @@ class Recording(OrgOwnedModel, TimeStampedModel):
     duration_ms = models.PositiveIntegerField(null=True, blank=True)
     candidate_count = models.PositiveIntegerField(null=True, blank=True)
     error = models.TextField(blank=True)
+    error_code = models.CharField(max_length=32, blank=True)
+    compile_task_id = models.CharField(max_length=64, blank=True)  # who owns the compile
     uploaded_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:

@@ -32,7 +32,7 @@ CANDIDATES = "candidates.json"
 
 
 class RecordingListView(OrgScopedViewMixin, generics.ListCreateAPIView):
-    queryset = Recording.objects.all()
+    queryset = Recording.objects.select_related("workflow")
     serializer_class = RecordingSerializer
 
     @extend_schema(request=RecordingCreateSerializer, responses={201: RecordingCreatedSerializer})
@@ -69,7 +69,7 @@ class RecordingListView(OrgScopedViewMixin, generics.ListCreateAPIView):
 
 
 class RecordingDetailView(OrgScopedViewMixin, generics.RetrieveAPIView):
-    queryset = Recording.objects.all()
+    queryset = Recording.objects.select_related("workflow")
     serializer_class = RecordingSerializer
     lookup_url_kwarg = "recording_id"
 
@@ -128,6 +128,31 @@ def _enqueue_compile(recording_id: str) -> None:
     from engine.compiler.tasks import compile_recording
 
     compile_recording.delay(recording_id)
+
+
+class RecordingCompileView(OrgScopedViewMixin, generics.GenericAPIView):
+    """Compile again after a failure (e.g. the AI was unavailable)."""
+
+    queryset = Recording.objects.all()
+    serializer_class = RecordingSerializer
+    lookup_url_kwarg = "recording_id"
+
+    @extend_schema(request=None, responses={202: RecordingSerializer})
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        recording = self.get_object()
+        if recording.status != Recording.Status.FAILED:
+            raise ApiError(
+                "not_failed",
+                "Only a failed recording can be compiled again.",
+                status_code=409,
+                details={"status": recording.status},
+            )
+        recording.status = Recording.Status.UPLOADED
+        recording.error, recording.error_code = "", ""
+        recording.save(update_fields=["status", "error", "error_code", "updated_at"])
+        record("recording.recompile", org=self.org, request=request, entity=recording)
+        transaction.on_commit(lambda: _enqueue_compile(recording.id))
+        return Response(RecordingSerializer(recording).data, status=status.HTTP_202_ACCEPTED)
 
 
 class RecordingCandidatesView(OrgScopedViewMixin, generics.GenericAPIView):

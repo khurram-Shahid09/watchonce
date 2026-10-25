@@ -25,8 +25,9 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 |---|---|---|
 | POST | `/recordings` | `{description, start_url, event_count, duration_ms?, frames: ["frames/0001.webp", …]}` → recording + `upload: {events_url, frames: [{name, url}], expires_at}` presigned PUTs (15 min). Send `Content-Type: application/json` for events and `image/webp` for frames. |
 | POST | `/recordings/{id}/complete` | verifies every file exists and is within size limits (`409 upload_incomplete` with `details.missing`, `413 file_too_large`) → enqueues compile → `202`. Idempotent. |
+| POST | `/recordings/{id}/compile` | compile again after a failure (`409 not_failed` otherwise) → `202` |
 | GET | `/recordings/{id}/candidates` | normalized candidate steps with locators (output of the deterministic compile stages); `409 candidates_not_ready` before that |
-| GET | `/recordings/{id}` | status, error, resulting workflow_id |
+| GET | `/recordings/{id}` | status, `error` + `error_code` (e.g. `budget_exceeded`, `compile_invalid`, `llm_refusal`), resulting `workflow_id` |
 | GET | `/recordings` | list |
 
 ## Workflows
@@ -37,7 +38,10 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 | PATCH | `/workflows/{id}` | name, description, manual_duration_sec, settings |
 | DELETE | `/workflows/{id}` | archive |
 | GET | `/workflows/{id}/versions/{v}` | full spec + SOP |
-| POST | `/workflows/{id}/versions` | save edited spec → new version (validated; `422` with validator errors) |
+| GET | `/workflows/{id}/versions` | version list, newest first |
+| POST | `/workflows/{id}/versions` | `{spec, change_note?, base_version?, activate?}` → new version (validated; `422 invalid_spec` with `details.errors[{path, message}]`). Saved as `draft` unless `activate` (owners only). Removing an approval checkpoint is audit-logged (`workflow.checkpoint.removed`). |
+| POST | `/workflows/{id}/versions/{v}/sop` | rewrite the SOP with the AI (synchronous; `503 llm_unavailable` leaves it unchanged) |
+| GET | `/workflows/{id}/screenshots/frames/{n}.webp` | `302` to a short-lived link to a recording screenshot |
 | POST | `/workflows/{id}/versions/{v}/activate` | make active (owner) |
 | GET | `/workflows/{id}/versions/{v}/sop.pdf` | SOP PDF |
 | GET | `/workflows/{id}/versions/{v}/export/playwright` | `.py` file |

@@ -12,6 +12,7 @@ from django.conf import settings
 
 class ObjectStorage(Protocol):
     def presign_put(self, key: str, content_type: str, expires_in: int) -> str: ...
+    def presign_get(self, key: str, expires_in: int) -> str: ...
     def size(self, key: str) -> int | None:
         """Object size in bytes, or None if it doesn't exist."""
 
@@ -47,6 +48,11 @@ class S3Storage:
             "put_object",
             Params={"Bucket": self.bucket, "Key": key, "ContentType": content_type},
             ExpiresIn=expires_in,
+        )
+
+    def presign_get(self, key: str, expires_in: int) -> str:
+        return self.signer.generate_presigned_url(
+            "get_object", Params={"Bucket": self.bucket, "Key": key}, ExpiresIn=expires_in
         )
 
     def size(self, key: str) -> int | None:
@@ -97,6 +103,9 @@ class MemoryStorage:
 
     def presign_put(self, key: str, content_type: str, expires_in: int) -> str:
         return f"memory://{key}?expires_in={expires_in}"
+
+    def presign_get(self, key: str, expires_in: int) -> str:
+        return f"http://storage.memory/{key}?expires_in={expires_in}"  # redirectable
 
     def size(self, key: str) -> int | None:
         obj = self.objects.get(key)
