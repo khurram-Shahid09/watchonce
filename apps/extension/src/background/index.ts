@@ -1,6 +1,6 @@
 // Service worker: owns the recording session. Content scripts report actions; this worker
 // numbers them, attaches the screenshot taken just before each one, and buffers everything
-// in IndexedDB. Upload to the WatchOnce API lands on Day 5.
+// in IndexedDB. When stopped, the recording is uploaded to the connected workspace.
 
 import {
   FORMAT_VERSION,
@@ -10,10 +10,13 @@ import {
   type RecordedEvent,
   type RecordingSession,
   type RecordingStatus,
+  type UploadState,
 } from "../shared/types";
+import { ApiError, connect, loadConnection, publicView, saveConnection } from "./api";
 import { diag } from "./diag";
 import { blobToDataUrl, captureWindow } from "./frames";
 import { countFrames, deleteRecording, getEvents, getFrames, loadSession, putEvent, putFrame, saveSession } from "./store";
+import { uploadRecording } from "./upload";
 
 const CONTENT_SCRIPT_ID = "watchonce-recorder";
 const FRAME_WAIT_MS = 1500;
@@ -159,6 +162,7 @@ async function setStatus(status: RecordingStatus): Promise<RecordingSession | nu
 async function discard(): Promise<void> {
   await serialized(async () => {
     const session = await loadSession();
+    if (session?.upload?.state === "uploading") throw new Error("Wait for the upload to finish.");
     if (session) {
       await chrome.tabs.sendMessage(session.tabId, { kind: "state.changed", status: "idle" }).catch(() => undefined);
       await deleteRecording(session.id);
@@ -324,16 +328,73 @@ async function exportRecording(): Promise<ExportedRecording | null> {
   };
 }
 
+// --- Upload ---
+
+function setUpload(sessionId: string, upload: UploadState): Promise<void> {
+  return serialized(async () => {
+    const session = await loadSession();
+    if (session?.id !== sessionId) return;
+    session.upload = upload;
+    await saveSession(session);
+  });
+}
+
+async function startUpload(): Promise<RecordingSession> {
+  const conn = await loadConnection();
+  if (!conn) throw new Error("Connect your WatchOnce workspace first.");
+  const session = await serialized(async () => {
+    const s = await loadSession();
+    if (!s || s.status !== "stopped") throw new Error("Stop the recording before uploading.");
+    if (s.upload?.state === "uploading") throw new Error("Already uploading.");
+    if (s.upload?.state === "done") throw new Error("This recording is already uploaded.");
+    if (!s.description.trim()) throw new Error("Describe what this task does first.");
+    s.upload = { state: "uploading", done: 0, total: 0, recordingId: null, error: null };
+    await saveSession(s);
+    return s;
+  });
+
+  // Runs on after the reply; the popup follows progress through state.get.
+  void (async () => {
+    let progress = { done: 0, total: 0 };
+    let reported = 0;
+    try {
+      const [events, frames] = await Promise.all([getEvents(session.id), getFrames(session.id)]);
+      const id = await uploadRecording(conn, { session, events, frames }, (done, total) => {
+        progress = { done, total };
+        if (done === total || Date.now() - reported > 300) {
+          reported = Date.now();
+          void setUpload(session.id, { state: "uploading", ...progress, recordingId: null, error: null });
+        }
+      });
+      await setUpload(session.id, { state: "done", ...progress, recordingId: id, error: null });
+      diag(`upload: ${id} done (${progress.total} files)`);
+    } catch (err) {
+      const message =
+        err instanceof ApiError && err.status === 401
+          ? "Your access token was revoked or has expired. Connect again."
+          : err instanceof Error
+            ? err.message
+            : String(err);
+      diag(`upload failed: ${message}`);
+      await setUpload(session.id, { state: "failed", ...progress, recordingId: null, error: message });
+    }
+  })();
+  return session;
+}
+
 // --- Messages ---
 
 async function handle(message: Message, sender: chrome.runtime.MessageSender): Promise<unknown> {
-  const fromTab = sender.tab?.id;
+  // Our own pages (popup) vs content scripts. The popup can also be open in a tab (tests),
+  // so look at the sender's URL, not at whether it has a tab.
+  const fromExtension = sender.id === chrome.runtime.id && (sender.url ?? "").startsWith(chrome.runtime.getURL(""));
+  const fromTab = fromExtension ? undefined : sender.tab?.id;
   switch (message.kind) {
     case "state.get": {
       const session = await loadSession();
       // Content scripts in other tabs of the same site must stay inert.
       if (fromTab !== undefined && session?.tabId !== fromTab) return { session: null };
-      return { session: await withFrameCount(session) };
+      return { session: await withFrameCount(session), connection: fromExtension ? publicView(await loadConnection()) : null };
     }
     case "recording.start":
       return { session: await startRecording(message.tabId) };
@@ -357,6 +418,18 @@ async function handle(message: Message, sender: chrome.runtime.MessageSender): P
       });
     case "recording.export":
       return exportRecording();
+    case "recording.upload":
+      return { session: await startUpload() };
+    case "connection.set": {
+      if (!fromExtension) throw new Error("Not allowed.");
+      const conn = await connect(message.apiUrl, message.token);
+      await saveConnection(conn);
+      return { connection: publicView(conn) };
+    }
+    case "connection.clear":
+      if (!fromExtension) throw new Error("Not allowed.");
+      await saveConnection(null);
+      return { connection: null };
     case "capture.intent":
       announceCapture(captureKey(sender, message.captureId)); // synchronous: before any await
       return { ok: true };
@@ -383,5 +456,10 @@ chrome.commands.onCommand.addListener((command) => {
   })();
 });
 
-// Restore the badge after a browser restart.
-void loadSession().then(broadcast);
+// Restore the badge after a browser restart. An upload can't survive a worker restart.
+void loadSession().then(async (session) => {
+  if (session?.upload?.state === "uploading") {
+    await setUpload(session.id, { ...session.upload, state: "failed", error: "The upload was interrupted. Try again." });
+  }
+  await broadcast(session);
+});

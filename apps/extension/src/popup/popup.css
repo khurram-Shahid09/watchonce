@@ -45,3 +45,14 @@ textarea { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(-
 .warnings li { font-size: 12px; background: #fef3c7; color: #78350f; border-radius: 6px; padding: 6px 8px; margin-top: 6px; }
 .error { color: var(--danger); margin: 10px 0 0; }
 kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; }
+button.wide { width: 100%; margin-bottom: 8px; }
+input { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); margin-bottom: 8px; }
+.progress { display: grid; gap: 6px; }
+.progress progress { width: 100%; }
+.progress span { color: var(--muted); font-size: 12px; }
+.done p { margin: 0 0 8px; }
+code { font: 11px ui-monospace, monospace; }
+.connection { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+.connection summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+.connection summary.ok { color: var(--fg); }
+.connection form, .connection #connected { margin-top: 10px; }

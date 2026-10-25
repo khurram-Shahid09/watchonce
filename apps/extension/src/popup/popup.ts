@@ -15,6 +15,7 @@ function showError(err: unknown): void {
 }
 
 let session: RecordingSession | null = null;
+let connection: StateReply["connection"] = null;
 let ticker: number | undefined;
 
 function render(): void {
@@ -34,6 +35,9 @@ function render(): void {
     const description = $<HTMLTextAreaElement>("description");
     if (document.activeElement !== description) description.value = session.description;
   }
+  renderUpload();
+  renderConnection();
+
   const warnings = $("warnings");
   warnings.replaceChildren(
     ...(session?.warnings ?? []).map((w) => Object.assign(document.createElement("li"), { textContent: w })),
@@ -50,8 +54,43 @@ function render(): void {
   }
 }
 
+function renderUpload(): void {
+  const upload = session?.upload;
+  const uploading = upload?.state === "uploading";
+  const done = upload?.state === "done";
+  $("upload-actions").hidden = uploading || done;
+  $("upload-progress").hidden = !uploading;
+  $("upload-done").hidden = !done;
+  $<HTMLTextAreaElement>("description").disabled = uploading || done;
+  $<HTMLButtonElement>("upload").disabled = !connection;
+  $("upload").textContent = upload?.state === "failed" ? "Retry upload" : "Upload to workspace";
+  $("upload").title = connection ? "" : "Connect your workspace below first.";
+  if (uploading) {
+    const bar = $<HTMLProgressElement>("upload-bar");
+    bar.max = Math.max(upload.total, 1);
+    bar.value = upload.done;
+    $("upload-text").textContent = upload.total ? `Uploading ${upload.done} of ${upload.total} files…` : "Starting upload…";
+  }
+  if (done) $("upload-id").textContent = upload.recordingId ?? "";
+  if (upload?.state === "failed" && $("error").hidden) showError(`Upload failed: ${upload.error ?? "unknown error"}`);
+}
+
+function renderConnection(): void {
+  const summary = $("connection-summary");
+  summary.textContent = connection ? `Workspace: ${connection.orgName}` : "Connect your WatchOnce workspace";
+  summary.classList.toggle("ok", Boolean(connection));
+  $("connect-form").hidden = Boolean(connection);
+  $("connected").hidden = !connection;
+  if (connection) {
+    $("connected-email").textContent = connection.email;
+    $("connected-url").textContent = connection.apiUrl;
+  }
+}
+
 async function refresh(): Promise<void> {
-  session = (await call<StateReply>({ kind: "state.get" })).session;
+  const reply = await call<StateReply>({ kind: "state.get" });
+  session = reply.session;
+  connection = reply.connection ?? null;
   render();
 }
 
@@ -112,7 +151,46 @@ async function init(): Promise<void> {
     }
   });
 
+  $("upload").addEventListener("click", async () => {
+    try {
+      $("error").hidden = true;
+      await call<StateReply>({ kind: "recording.describe", description: $<HTMLTextAreaElement>("description").value });
+      session = (await call<StateReply>({ kind: "recording.upload" })).session;
+      render();
+    } catch (err) {
+      showError(err);
+    }
+  });
+  $("new-recording").addEventListener("click", async () => {
+    await call<StateReply>({ kind: "recording.discard" }).catch(showError); // already uploaded
+    await refresh();
+  });
+
+  $("connect-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("error").hidden = true;
+    const apiUrl = $<HTMLInputElement>("api-url").value;
+    try {
+      // Must be the first await, while Chrome still counts this as a user gesture.
+      const origin = new URL(apiUrl).origin;
+      if (!(await chrome.permissions.request({ origins: [`${origin}/*`] }))) {
+        throw new Error("WatchOnce needs access to its own address to upload recordings.");
+      }
+      const reply = await call<StateReply>({ kind: "connection.set", apiUrl, token: $<HTMLInputElement>("api-token").value });
+      connection = reply.connection ?? null;
+      $<HTMLInputElement>("api-token").value = "";
+      render();
+    } catch (err) {
+      showError(err instanceof TypeError ? new Error("Enter a valid address, e.g. http://localhost:8000") : err);
+    }
+  });
+  $("disconnect").addEventListener("click", async () => {
+    connection = (await call<StateReply>({ kind: "connection.clear" })).connection ?? null;
+    render();
+  });
+
   await refresh();
+  $<HTMLDetailsElement>("connection").open = !connection;
   window.setInterval(() => void refresh().catch(() => undefined), 1000);
 }
 

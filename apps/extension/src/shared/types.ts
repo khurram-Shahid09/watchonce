@@ -1,5 +1,5 @@
-// Recording format v1 (docs/07-recorder-extension.md). Uploaded as events.json on Day 5 and
-// read by the compiler's normalizer. Keep changes backwards compatible or bump FORMAT_VERSION.
+// Recording format v1 (docs/07-recorder-extension.md). Uploaded as events.json and read by the
+// compiler (services/core/engine/compiler/recording.py). Keep changes backwards compatible or bump FORMAT_VERSION.
 
 export const FORMAT_VERSION = 1;
 
@@ -56,6 +56,14 @@ export type CapturedEvent = Omit<RecordedEvent, "seq" | "frame_ref"> & { capture
 
 export type RecordingStatus = "idle" | "recording" | "paused" | "stopped";
 
+export interface UploadState {
+  state: "uploading" | "done" | "failed";
+  done: number; // files uploaded
+  total: number;
+  recordingId: string | null;
+  error: string | null;
+}
+
 export interface RecordingSession {
   id: string; // local id until uploaded
   status: RecordingStatus;
@@ -68,6 +76,7 @@ export interface RecordingSession {
   frameCount: number;
   warnings: string[];
   description: string;
+  upload?: UploadState;
 }
 
 export type Message =
@@ -79,12 +88,16 @@ export type Message =
   | { kind: "recording.discard" }
   | { kind: "recording.describe"; description: string }
   | { kind: "recording.export" }
+  | { kind: "recording.upload" }
+  | { kind: "connection.set"; apiUrl: string; token: string }
+  | { kind: "connection.clear" }
   | { kind: "event"; event: CapturedEvent }
   | { kind: "capture.intent"; captureId: number } // sent at pointerdown, before the event itself
   | { kind: "capture"; captureId: number; domChanged: boolean }; // secrets blurred, take it now
 
 export interface StateReply {
   session: RecordingSession | null;
+  connection?: { apiUrl: string; email: string; orgId: string; orgName: string } | null;
 }
 
 export interface ExportedRecording {

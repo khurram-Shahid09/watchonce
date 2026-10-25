@@ -20,6 +20,7 @@ dependencies = [
     "pydantic",
     "jsonschema",
     "djangorestframework-simplejwt>=5.5.1",
+    "boto3>=1.43.111",
 ]
 
 [dependency-groups]

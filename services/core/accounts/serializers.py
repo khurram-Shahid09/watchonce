@@ -55,12 +55,27 @@ class MembershipSerializer(serializers.ModelSerializer):
         fields = ["id", "org", "role"]
 
 
+class MeTokenSerializer(serializers.ModelSerializer):
+    org = OrganizationSerializer(read_only=True)
+
+    class Meta:
+        model = ApiToken
+        fields = ["id", "name", "org", "expires_at"]
+
+
 class MeSerializer(serializers.ModelSerializer):
     memberships = MembershipSerializer(many=True, read_only=True)
+    token = serializers.SerializerMethodField(
+        help_text="The access token this request used (null for dashboard sessions)."
+    )
 
     class Meta:
         model = User
-        fields = ["id", "email", "name", "memberships"]
+        fields = ["id", "email", "name", "memberships", "token"]
+
+    def get_token(self, user: User) -> dict | None:
+        token = self.context.get("token")
+        return MeTokenSerializer(token).data if token is not None else None
 
 
 class AuthResponseSerializer(serializers.Serializer):

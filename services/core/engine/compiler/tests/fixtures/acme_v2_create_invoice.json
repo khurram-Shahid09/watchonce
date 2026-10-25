@@ -1,0 +1,1337 @@
+{
+ "format_version": 1,
+ "recording": {
+  "description": "create vendo invoice",
+  "eventCount": 29,
+  "frameCount": 24,
+  "id": "local_mvnyrg35_gd2jm8",
+  "origin": "http://localhost:3001",
+  "startUrl": "http://localhost:3001/login",
+  "startedAt": 1792940972081,
+  "status": "stopped",
+  "stoppedAt": 1792941003029,
+  "tabId": 685399008,
+  "warnings": []
+ },
+ "events": [
+  {
+   "ts": 1792940972084,
+   "type": "navigate",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "initial"
+   },
+   "seq": 1,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940974442,
+   "type": "click",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "User ID",
+    "text": null,
+    "id": "login-user",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "username",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "User ID",
+    "css_path": "#login-user",
+    "xpath": "/html/body/main/div/div/form/div/div[1]/div/input",
+    "bbox": [
+     567,
+     172,
+     249,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "User ID",
+     "Password"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 2,
+   "frame_ref": "frames/0002.webp"
+  },
+  {
+   "ts": 1792940976407,
+   "type": "input",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "User ID",
+    "text": null,
+    "id": "login-user",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "username",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "User ID",
+    "css_path": "#login-user",
+    "xpath": "/html/body/main/div/div/form/div/div[1]/div/input",
+    "bbox": [
+     567,
+     172,
+     249,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "User ID",
+     "Password"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "sara",
+   "value_masked": false,
+   "seq": 3,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940978162,
+   "type": "click",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Password",
+    "text": null,
+    "id": "login-pass",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "password",
+     "name": "password",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Password",
+    "css_path": "#login-pass",
+    "xpath": "/html/body/main/div/div/form/div/div[2]/div/input",
+    "bbox": [
+     567,
+     210,
+     249,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Password",
+     "User ID"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 4,
+   "frame_ref": "frames/0004.webp"
+  },
+  {
+   "ts": 1792940978809,
+   "type": "input",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Password",
+    "text": null,
+    "id": "login-pass",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "password",
+     "name": "password",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Password",
+    "css_path": "#login-pass",
+    "xpath": "/html/body/main/div/div/form/div/div[2]/div/input",
+    "bbox": [
+     567,
+     210,
+     249,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Password",
+     "User ID"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "__SECRET__",
+   "value_masked": true,
+   "mask_reason": "password_field",
+   "seq": 5,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940980453,
+   "type": "input",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Password",
+    "text": null,
+    "id": "login-pass",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "password",
+     "name": "password",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Password",
+    "css_path": "#login-pass",
+    "xpath": "/html/body/main/div/div/form/div/div[2]/div/input",
+    "bbox": [
+     567,
+     210,
+     249,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Password",
+     "User ID"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "__SECRET__",
+   "value_masked": true,
+   "mask_reason": "password_field",
+   "seq": 6,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940982309,
+   "type": "click",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "button",
+    "role": "button",
+    "accessible_name": "Log in",
+    "text": "Log in",
+    "id": "signin-btn",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "submit",
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "#signin-btn",
+    "xpath": "/html/body/main/div/div/form/div/div[3]/button",
+    "bbox": [
+     567,
+     249,
+     60,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Password",
+     "User ID"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 7,
+   "frame_ref": "frames/0007.webp"
+  },
+  {
+   "ts": 1792940982310,
+   "type": "submit",
+   "url": "http://localhost:3001/login",
+   "frame_path": [],
+   "element": {
+    "tag": "form",
+    "role": null,
+    "accessible_name": null,
+    "text": "User ID Password Log in",
+    "id": "login-form",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "#login-form",
+    "xpath": "/html/body/main/div/div/form",
+    "bbox": [
+     465,
+     172,
+     351,
+     105
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Password",
+     "User ID"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": null,
+     "text": false,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 8,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940982354,
+   "type": "navigate",
+   "url": "http://localhost:3001/dashboard",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "link_or_script"
+   },
+   "seq": 9,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940984158,
+   "type": "click",
+   "url": "http://localhost:3001/dashboard",
+   "frame_path": [],
+   "element": {
+    "tag": "a",
+    "role": "link",
+    "accessible_name": "Invoices",
+    "text": "Invoices",
+    "id": null,
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": "/invoices",
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "a:nth-of-type(2)",
+    "xpath": "/html/body/header/nav/a[2]",
+    "bbox": [
+     315,
+     -1,
+     71,
+     43
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 10,
+   "frame_ref": "frames/0009.webp"
+  },
+  {
+   "ts": 1792940984189,
+   "type": "navigate",
+   "url": "http://localhost:3001/invoices",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "link_or_script"
+   },
+   "seq": 11,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940985908,
+   "type": "click",
+   "url": "http://localhost:3001/invoices",
+   "frame_path": [],
+   "element": {
+    "tag": "button",
+    "role": "button",
+    "accessible_name": "Create invoice",
+    "text": "Create invoice",
+    "id": "create-btn",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "submit",
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "#create-btn",
+    "xpath": "/html/body/main/div/div/div[1]/div[2]/div/form/button",
+    "bbox": [
+     1058,
+     98,
+     106,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Status"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 12,
+   "frame_ref": "frames/0011.webp"
+  },
+  {
+   "ts": 1792940985909,
+   "type": "submit",
+   "url": "http://localhost:3001/invoices",
+   "frame_path": [],
+   "element": {
+    "tag": "form",
+    "role": null,
+    "accessible_name": null,
+    "text": "Create invoice",
+    "id": null,
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "div:nth-of-type(2) > div > form",
+    "xpath": "/html/body/main/div/div/div[1]/div[2]/div/form",
+    "bbox": [
+     1058,
+     98,
+     106,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Status"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": null,
+     "text": false,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 13,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940985950,
+   "type": "navigate",
+   "url": "http://localhost:3001/invoices/new?",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "link_or_script"
+   },
+   "seq": 14,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940985963,
+   "type": "navigate",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "link_or_script"
+   },
+   "seq": 15,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940987391,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "button",
+    "role": "combobox",
+    "accessible_name": "Supplier",
+    "text": "— Select —",
+    "id": "supplier-select",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "button",
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": "combobox",
+     "href": null,
+     "for": null
+    },
+    "label_text": "Supplier",
+    "css_path": "#supplier-select",
+    "xpath": "/html/body/main/div/form/div/div[1]/div/div/button",
+    "bbox": [
+     303,
+     108,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 16,
+   "frame_ref": "frames/0013.webp"
+  },
+  {
+   "ts": 1792940988275,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "li",
+    "role": "option",
+    "accessible_name": "City Power & Light",
+    "text": "City Power & Light",
+    "id": null,
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": "option",
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "li:nth-of-type(4)",
+    "xpath": "/html/body/main/div/form/div/div[1]/div/div/ul/li[4]",
+    "bbox": [
+     303,
+     222,
+     303,
+     27
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 17,
+   "frame_ref": "frames/0014.webp"
+  },
+  {
+   "ts": 1792940989325,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Invoice amount",
+    "text": null,
+    "id": "inv-amount",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "amount",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Invoice amount",
+    "css_path": "#inv-amount",
+    "xpath": "/html/body/main/div/form/div/div[2]/div/input",
+    "bbox": [
+     303,
+     146,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 18,
+   "frame_ref": "frames/0015.webp"
+  },
+  {
+   "ts": 1792940990874,
+   "type": "input",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Invoice amount",
+    "text": null,
+    "id": "inv-amount",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "amount",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Invoice amount",
+    "css_path": "#inv-amount",
+    "xpath": "/html/body/main/div/form/div/div[2]/div/input",
+    "bbox": [
+     303,
+     146,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "234",
+   "value_masked": false,
+   "seq": 19,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940992362,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "div",
+    "role": null,
+    "accessible_name": null,
+    "text": "Supplier City Power & Light Invoice amount USD, e.g. 1250.50 Payment due date MM/DD/YYYY Notes Submi",
+    "id": null,
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "#invoice-form > div",
+    "xpath": "/html/body/main/div/form/div",
+    "bbox": [
+     131,
+     108,
+     1019,
+     221
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": null,
+     "text": false,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 20,
+   "frame_ref": "frames/0017.webp"
+  },
+  {
+   "ts": 1792940993256,
+   "type": "input",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Payment due date",
+    "text": null,
+    "id": "inv-due",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "due",
+     "placeholder": "MM/DD/YYYY",
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Payment due date",
+    "css_path": "#inv-due",
+    "xpath": "/html/body/main/div/form/div/div[4]/div/input",
+    "bbox": [
+     303,
+     204,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "12/03/2024",
+   "value_masked": false,
+   "seq": 21,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940994221,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Notes",
+    "text": null,
+    "id": "inv-notes",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "description",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Notes",
+    "css_path": "#inv-notes",
+    "xpath": "/html/body/main/div/form/div/div[6]/div/input",
+    "bbox": [
+     303,
+     263,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 22,
+   "frame_ref": "frames/0019.webp"
+  },
+  {
+   "ts": 1792940995339,
+   "type": "input",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Notes",
+    "text": null,
+    "id": "inv-notes",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "description",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Notes",
+    "css_path": "#inv-notes",
+    "xpath": "/html/body/main/div/form/div/div[6]/div/input",
+    "bbox": [
+     303,
+     263,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "autm",
+   "value_masked": false,
+   "seq": 23,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940996634,
+   "type": "input",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "input",
+    "role": "textbox",
+    "accessible_name": "Notes",
+    "text": null,
+    "id": "inv-notes",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": "description",
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": "Notes",
+    "css_path": "#inv-notes",
+    "xpath": "/html/body/main/div/form/div/div[6]/div/input",
+    "bbox": [
+     303,
+     263,
+     320,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": null,
+     "css": true,
+     "label": true
+    },
+    "shadow_hosts": []
+   },
+   "value": "automation",
+   "value_masked": false,
+   "seq": 24,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940998208,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "button",
+    "role": "button",
+    "accessible_name": "Submit for approval",
+    "text": "Submit for approval",
+    "id": "btn-save-invoice",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": "submit",
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "#btn-save-invoice",
+    "xpath": "/html/body/main/div/form/div/div[7]/button",
+    "bbox": [
+     303,
+     301,
+     138,
+     28
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Notes",
+     "Payment due date"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 25,
+   "frame_ref": "frames/0022.webp"
+  },
+  {
+   "ts": 1792940998209,
+   "type": "submit",
+   "url": "http://localhost:3001/invoices/new",
+   "frame_path": [],
+   "element": {
+    "tag": "form",
+    "role": null,
+    "accessible_name": null,
+    "text": "Supplier City Power & Light Invoice amount USD, e.g. 1250.50 Payment due date MM/DD/YYYY Notes Submi",
+    "id": "invoice-form",
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": null,
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "#invoice-form",
+    "xpath": "/html/body/main/div/form",
+    "bbox": [
+     131,
+     108,
+     1019,
+     221
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [],
+    "is_unique": {
+     "testid": null,
+     "role_name": null,
+     "text": false,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 26,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940998256,
+   "type": "navigate",
+   "url": "http://localhost:3001/invoices/INV-422111?created=1",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "link_or_script"
+   },
+   "seq": 27,
+   "frame_ref": null
+  },
+  {
+   "ts": 1792940999758,
+   "type": "click",
+   "url": "http://localhost:3001/invoices/INV-422111?created=1",
+   "frame_path": [],
+   "element": {
+    "tag": "a",
+    "role": "link",
+    "accessible_name": "Dashboard",
+    "text": "Dashboard",
+    "id": null,
+    "classes": [],
+    "attrs": {
+     "data-testid": null,
+     "data-test": null,
+     "data-qa": null,
+     "data-cy": null,
+     "type": null,
+     "name": null,
+     "placeholder": null,
+     "aria-label": null,
+     "title": null,
+     "role": null,
+     "href": "/dashboard",
+     "for": null
+    },
+    "label_text": null,
+    "css_path": "nav > a:nth-of-type(1)",
+    "xpath": "/html/body/header/nav/a[1]",
+    "bbox": [
+     227,
+     -1,
+     86,
+     43
+    ],
+    "viewport": [
+     1280,
+     585
+    ],
+    "nearby_text": [
+     "Vendor"
+    ],
+    "is_unique": {
+     "testid": null,
+     "role_name": true,
+     "text": true,
+     "css": true,
+     "label": null
+    },
+    "shadow_hosts": []
+   },
+   "value": null,
+   "value_masked": false,
+   "seq": 28,
+   "frame_ref": "frames/0024.webp"
+  },
+  {
+   "ts": 1792940999785,
+   "type": "navigate",
+   "url": "http://localhost:3001/dashboard",
+   "frame_path": [],
+   "element": null,
+   "value": null,
+   "value_masked": false,
+   "nav": {
+    "transition": "link_or_script"
+   },
+   "seq": 29,
+   "frame_ref": null
+  }
+ ],
+ "frames": {}
+}

@@ -14,7 +14,7 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 | POST | `/auth/refresh` | rotate refresh token. Replaying an already-rotated token revokes all of the user's sessions (reuse detection). |
 | POST | `/auth/logout` | revoke refresh, clear cookie |
 | GET | `/auth/google/start`, `/auth/google/callback` | OAuth |
-| GET | `/me` | user + memberships |
+| GET | `/me` | user + memberships; with a PAT also `token: {id, name, org, expires_at}` (the extension shows the workspace from it) |
 | GET/POST | `/tokens` | personal access tokens for the extension. `POST {name, expires_in_days?}` returns `token` (`pat_…`) once. Needs a dashboard session (a PAT can't mint PATs). |
 | DELETE | `/tokens/{id}` | revoke |
 | GET/POST | `/orgs/{org_id}/members` | list (members) / add an existing account by email (owner) |
@@ -23,8 +23,9 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 ## Recordings
 | Method | Path | Description |
 |---|---|---|
-| POST | `/recordings` | `{description, start_url, event_count, frame_count}` → `{id, upload: {events_url, frames: [{name, url}]}}` presigned PUTs (15 min) |
-| POST | `/recordings/{id}/complete` | verifies objects exist → enqueues compile → `202` |
+| POST | `/recordings` | `{description, start_url, event_count, duration_ms?, frames: ["frames/0001.webp", …]}` → recording + `upload: {events_url, frames: [{name, url}], expires_at}` presigned PUTs (15 min). Send `Content-Type: application/json` for events and `image/webp` for frames. |
+| POST | `/recordings/{id}/complete` | verifies every file exists and is within size limits (`409 upload_incomplete` with `details.missing`, `413 file_too_large`) → enqueues compile → `202`. Idempotent. |
+| GET | `/recordings/{id}/candidates` | normalized candidate steps with locators (output of the deterministic compile stages); `409 candidates_not_ready` before that |
 | GET | `/recordings/{id}` | status, error, resulting workflow_id |
 | GET | `/recordings` | list |
 
