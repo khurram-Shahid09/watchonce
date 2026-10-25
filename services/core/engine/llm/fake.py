@@ -14,6 +14,8 @@ from engine.spec.validate import RISKY_VERBS
 
 from .types import (
     InputUnderstanding,
+    RepairRequest,
+    RepairResult,
     SopRequest,
     SopResult,
     StepUnderstanding,
@@ -116,6 +118,25 @@ class FakeProvider:
         return SopResult(markdown=render_basic_sop(req.spec)), Usage(
             provider=self.name, model=self.model, stop_reason="end_turn"
         )
+
+    def repair(self, req: RepairRequest) -> tuple[RepairResult, Usage]:
+        """The best-ranked candidate that can take the action, if it is reasonably similar.
+        No reasoning about the page: the runner's own checks still apply."""
+        usage = Usage(provider=self.name, model=self.model, stop_reason="end_turn")
+        for c in req.candidates:
+            if c.get("score", 0) >= 0.5 and c.get("fits_action", True):
+                return RepairResult(
+                    decision="match",
+                    candidate_id=c["id"],
+                    confidence=min(0.95, float(c["score"]) + 0.15),
+                    explanation=f"Closest match to the recorded element (similarity {c['score']:.2f}).",
+                ), usage
+        return RepairResult(
+            decision="no_match",
+            candidate_id="",
+            confidence=0.0,
+            explanation="Nothing on the page is similar enough.",
+        ), usage
 
 
 def _input(name: str, label: str, example: str) -> InputUnderstanding:

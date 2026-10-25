@@ -36,6 +36,7 @@ export interface Workflow {
   active_version: VersionSummary | null;
   step_count: number;
   input_count: number;
+  pending_heals: number;
   manual_duration_sec: number | null;
   archived_at: string | null;
   created_at: string;
@@ -129,3 +130,25 @@ export interface Secret {
 }
 
 export const FINISHED: RunStatus[] = ["succeeded", "failed", "rejected", "cancelled", "timed_out"];
+
+export interface Heal {
+  id: string;
+  run_id: string;
+  workflow_id: string;
+  step_id: string;
+  step_intent: string;
+  rung: "L2" | "L3";
+  score: number;
+  model_confidence: number | null;
+  explanation: string;
+  before_locators: { kind: string; value?: string; role?: string; name?: string }[];
+  after_locators: { kind: string; value?: string; role?: string; name?: string }[];
+  before_image_ref: string;
+  after_image_ref: string;
+  resulting_version: { version: number; status: string } | null;
+  decision: "pending" | "approved" | "rejected" | "auto";
+  decided_by: string | null;
+  decided_at: string | null;
+  cost_usd: string;
+  created_at: string;
+}

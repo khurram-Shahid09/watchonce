@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CheckpointDecision, Run, RunStep
+from .models import CheckpointDecision, HealEvent, Run, RunStep
 
 
 class RunStepSerializer(serializers.ModelSerializer):
@@ -76,3 +76,51 @@ class RunCreateSerializer(serializers.Serializer):
 class CheckpointDecisionInputSerializer(serializers.Serializer):
     decision = serializers.ChoiceField(choices=["approve", "reject"])
     note = serializers.CharField(max_length=500, required=False, allow_blank=True)
+
+
+class HealSerializer(serializers.ModelSerializer):
+    step_intent = serializers.SerializerMethodField()
+    resulting_version = serializers.SerializerMethodField()
+    decided_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HealEvent
+        fields = [
+            "id",
+            "run_id",
+            "workflow_id",
+            "step_id",
+            "step_intent",
+            "rung",
+            "score",
+            "model_confidence",
+            "explanation",
+            "before_locators",
+            "after_locators",
+            "before_image_ref",
+            "after_image_ref",
+            "resulting_version",
+            "decision",
+            "decided_by",
+            "decided_at",
+            "cost_usd",
+            "created_at",
+        ]
+        read_only_fields = fields
+
+    def get_step_intent(self, obj) -> str:
+        step = next(
+            (s for s in obj.run.version.spec.get("steps", []) if s["id"] == obj.step_id), None
+        )
+        return step["intent"] if step else obj.step_id
+
+    def get_resulting_version(self, obj) -> dict | None:
+        v = obj.resulting_version
+        return {"version": v.version, "status": v.status} if v else None
+
+    def get_decided_by(self, obj) -> str | None:
+        return obj.decided_by.email if obj.decided_by else None
+
+
+class HealDecisionSerializer(serializers.Serializer):
+    decision = serializers.ChoiceField(choices=["approve", "reject"])

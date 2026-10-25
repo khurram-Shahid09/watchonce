@@ -120,3 +120,25 @@ def output_schema(model: type[BaseModel]) -> dict[str, Any]:
         return node
 
     return walk(schema)
+
+
+# --- Repair (self-healing L3) ---
+
+
+class RepairResult(_Closed):
+    decision: Literal["match", "no_match", "page_state_wrong"]
+    candidate_id: str  # one of the given ids, or "" when there is no match
+    confidence: float
+    explanation: str
+
+
+@dataclass
+class RepairRequest:
+    intent: str
+    action: str
+    fingerprint: dict[str, Any]
+    candidates: list[dict[str, Any]]  # compact, pre-ranked by fingerprint score
+    previous_intent: str = ""
+    next_intent: str = ""
+    page_url: str = ""
+    images: list[Image] = field(default_factory=list)  # "recorded" frame, "now" screenshot

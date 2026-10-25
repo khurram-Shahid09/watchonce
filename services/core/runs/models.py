@@ -116,3 +116,48 @@ class CheckpointDecision(OrgOwnedModel, TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.run_id} {self.step_id}: {self.decision}"
+
+
+class HealEvent(OrgOwnedModel, TimeStampedModel):
+    """A step the runner found again after the page changed (docs/08 "Persisting a heal")."""
+
+    class Decision(models.TextChoices):
+        PENDING = "pending"
+        APPROVED = "approved"
+        REJECTED = "rejected"
+        AUTO = "auto"  # activated by heal_policy=auto
+
+    id = PrefixedIdField(prefix="hel")
+    run = models.ForeignKey(Run, on_delete=models.CASCADE, related_name="heals")
+    workflow = models.ForeignKey(
+        "workflows.Workflow", on_delete=models.CASCADE, related_name="heals"
+    )
+    step_id = models.CharField(max_length=16)
+    rung = models.CharField(max_length=4)  # L2 fingerprint | L3 AI
+    before_locators = models.JSONField(default=list)
+    after_locators = models.JSONField(default=list)
+    score = models.FloatField()
+    model_confidence = models.FloatField(null=True, blank=True)
+    explanation = models.TextField()
+    before_image_ref = models.CharField(max_length=64, blank=True)  # recording frame
+    after_image_ref = models.CharField(max_length=64, blank=True)  # run artifact
+    resulting_version = models.ForeignKey(
+        "workflows.WorkflowVersion",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    decision = models.CharField(max_length=10, choices=Decision.choices, default=Decision.PENDING)
+    decided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    decided_at = models.DateTimeField(null=True, blank=True)
+    cost_usd = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+
+    class Meta:
+        db_table = "heal_events"
+        indexes = [models.Index(fields=["workflow", "decision"])]
+
+    def __str__(self) -> str:
+        return f"{self.run_id} {self.step_id} {self.rung} ({self.decision})"

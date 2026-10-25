@@ -86,6 +86,15 @@ Accept if top score ≥ 0.75 **and** (top − second) ≥ 0.1 (an unambiguous wi
   - `heal_policy: auto` → auto-activates if confidence ≥ threshold **and** the step isn't a checkpoint
 - The **current run continues** with the healed locator, except on checkpoint steps, where the approval screen shows the heal explanation clearly.
 
+### Self-healing implementation notes (MVP)
+- **Page agent**: `engine/runner/static/page-agent.js` is built from the recorder's own descriptor code (`apps/extension/src/runner/page-agent.ts`, `pnpm --filter @watchonce/extension build`), so candidates on the live page are described exactly like recorded elements and healed locators are built by the same `build_locators` as compile.
+- **Fallbacks are verified**: a `text`, `css` or `xpath` fallback (not the primary locator) is only used if the element it found has the recorded role and scores ≥ 0.5 against the fingerprint. Otherwise the step goes to L2/L3. Found in testing: a text fallback "Sign in" matched the page heading, and a positional fallback matched an injected "Delete all records" button.
+- **Scoring**: empty text on both sides counts as a match (input fields); attribute and nearby-text overlap are measured against the smaller set, so stripped test ids or a removed heading don't count against a match twice.
+- **A heal only counts if the step then works**: if a healed step's post-condition fails, the heal is marked `rejected` and is not saved.
+- **One pending version per run** holds all its heals (new locators first, old kept as fallbacks); the dashboard's Heals tab decides them together.
+- With `LLM_PROVIDER=fake`, L3 is a deterministic "closest match ≥ 0.5" rule, still subject to every L3 check.
+- Tested on "Portal v2" (M1+M2+M3+M6+M7): 6 steps healed in one run; after approval the next run needed none (`apps/web/e2e/heal_workflow.py`).
+
 ## Live view
 - After each step a JPEG frame goes to Redis pub/sub channel `run:{id}:events` with the step events (`step`, `checkpoint`, `approved`, `frame`, `done`); the latest frame is also kept in `run:{id}:frame` for late viewers
 - `GET /runs/{id}/events` (Server-Sent Events) sends a snapshot, the latest frame, then live events; the dashboard relays it (decision D11)

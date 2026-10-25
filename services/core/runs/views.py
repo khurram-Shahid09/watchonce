@@ -23,9 +23,11 @@ from common.storage import get_storage
 from workflows.models import Workflow
 
 from . import live
-from .models import CheckpointDecision, Run, RunStep
+from .models import CheckpointDecision, HealEvent, Run, RunStep
 from .serializers import (
     CheckpointDecisionInputSerializer,
+    HealDecisionSerializer,
+    HealSerializer,
     RunCreateSerializer,
     RunDetailSerializer,
     RunSerializer,
@@ -220,7 +222,11 @@ class RunScreenshotView(OrgScopedViewMixin, generics.GenericAPIView):
     def get(self, request: Request, *args, **kwargs) -> HttpResponseRedirect:
         run = self.get_object()
         name = kwargs["name"]
-        if not RunStep.objects.filter(run=run, screenshot_ref=name).exists():
+        if not (
+            RunStep.objects.filter(run=run, screenshot_ref=name).exists()
+            or HealEvent.objects.filter(run=run, after_image_ref=name).exists()
+            or CheckpointDecision.objects.filter(run=run, screenshot_ref=name).exists()
+        ):
             raise exceptions.NotFound("Screenshot not found.")
         response = HttpResponseRedirect(
             get_storage().presign_get(run.artifacts_prefix + name, SCREENSHOT_TTL)
@@ -310,3 +316,77 @@ async def run_events(request: HttpRequest, run_id: str):
     response["Cache-Control"] = "no-cache"
     response["X-Accel-Buffering"] = "no"  # Caddy/nginx: don't buffer the stream
     return response
+
+
+# --- Heals (docs/10-api-spec.md "Heals") ---
+
+
+class HealListView(OrgScopedViewMixin, generics.ListAPIView):
+    queryset = HealEvent.objects.select_related("run__version", "resulting_version", "decided_by")
+    serializer_class = HealSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("workflow_id", str, required=False),
+            OpenApiParameter("decision", str, required=False),
+        ]
+    )
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if wf := self.request.query_params.get("workflow_id"):
+            qs = qs.filter(workflow_id=wf)
+        if decision := self.request.query_params.get("decision"):
+            qs = qs.filter(decision=decision)
+        return qs
+
+
+class HealDetailView(OrgScopedViewMixin, generics.RetrieveAPIView):
+    queryset = HealEvent.objects.select_related("run__version", "resulting_version", "decided_by")
+    serializer_class = HealSerializer
+    lookup_url_kwarg = "heal_id"
+
+
+class HealDecisionView(OrgScopedViewMixin, generics.GenericAPIView):
+    """Approve: the healed version becomes the one that runs. Reject: it is archived.
+    Every heal saved in that version gets the same decision (owners only)."""
+
+    queryset = HealEvent.objects.select_related("run__version", "resulting_version", "decided_by")
+    serializer_class = HealSerializer
+    lookup_url_kwarg = "heal_id"
+    owner_methods = frozenset({"POST"})
+
+    @extend_schema(request=HealDecisionSerializer, responses={200: HealSerializer})
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        from workflows.models import WorkflowVersion
+        from workflows.service import activate_version
+
+        data = HealDecisionSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        heal = self.get_object()
+        version = heal.resulting_version
+        if heal.decision != HealEvent.Decision.PENDING or version is None:
+            raise ApiError("already_decided", "This heal was already decided.", status_code=409)
+        approve = data.validated_data["decision"] == "approve"
+        with transaction.atomic():
+            if approve:
+                activate_version(version)
+            elif version.status == WorkflowVersion.Status.PENDING_HEAL:
+                version.status = WorkflowVersion.Status.ARCHIVED
+                version.save(update_fields=["status", "updated_at"])
+            HealEvent.objects.for_org(self.org).filter(resulting_version=version).update(
+                decision=HealEvent.Decision.APPROVED if approve else HealEvent.Decision.REJECTED,
+                decided_by=request.user,
+                decided_at=timezone.now(),
+            )
+            record(
+                "heal.approved" if approve else "heal.rejected",
+                org=self.org,
+                request=request,
+                entity=version,
+                metadata={"heal_id": heal.id, "version": version.version},
+            )
+        heal.refresh_from_db()
+        return Response(HealSerializer(heal).data)

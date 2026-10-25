@@ -63,5 +63,21 @@ await build({
   },
 });
 
+// 3. The runner's page agent (self-healing): same descriptor code, injected by the Python
+// runner. Written into the core service so the runner ships with it.
+if (!watch) {
+  await build({
+    ...shared,
+    publicDir: false,
+    build: {
+      outDir: `${root}../../services/core/engine/runner/static`,
+      emptyOutDir: false,
+      target: "chrome120",
+      minify: false,
+      lib: { entry: `${root}src/runner/page-agent.ts`, formats: ["iife"], name: "__watchonceAgent", fileName: () => "page-agent.js" },
+    },
+  });
+}
+
 await writeFile(`${dist}/manifest.json`, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`built ${e2e ? "E2E " : ""}extension → ${dist}`);

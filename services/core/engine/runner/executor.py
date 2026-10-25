@@ -69,6 +69,7 @@ class Executor:
         self.started = time.monotonic()
         self.waited = 0.0  # time spent waiting for people, not counted against the limit
         self.seq = 0
+        self.heals: list = []  # healer.Heal, one per step found again after a page change
 
     # --- events -------------------------------------------------------------------------
 
@@ -180,6 +181,12 @@ class Executor:
             self._act(page, step, found, timeout)
             self._post_condition(page, step, timeout)
         except (RunFailed, RunStopped) as exc:
+            if isinstance(exc, RunFailed) and record.rung in ("L2", "L3"):
+                from .healer import discard_last
+
+                discard_last(
+                    self, step["id"], "the page didn't react the way it did when recorded."
+                )
             record.status = (
                 RunStep.Status.FAILED if isinstance(exc, RunFailed) else RunStep.Status.SKIPPED
             )
@@ -187,7 +194,8 @@ class Executor:
             raise
         finally:
             if record.status in (RunStep.Status.RUNNING, RunStep.Status.AWAITING_APPROVAL):
-                record.status = RunStep.Status.OK
+                healed = record.rung in ("L2", "L3")
+                record.status = RunStep.Status.HEALED if healed else RunStep.Status.OK
             record.finished_at = timezone.now()
             # After the action (the approval screenshot is kept on the checkpoint decision).
             record.screenshot_ref = self._screenshot(
@@ -209,11 +217,24 @@ class Executor:
             run.save(update_fields=["status", "updated_at"])
 
     def _find(self, page: Page, step: dict[str, Any], timeout: int) -> Found:
+        from .healer import HealFailed, fallback_ok, heal
+
         try:
-            return find(page, step["target"]["locators"], timeout)
+            found = find(page, step["target"]["locators"], timeout)
+            if fallback_ok(found, step["target"].get("fingerprint")):
+                return found
+            not_found = ElementNotFound(step["target"]["locators"], [])
+            not_found.args = (
+                "Only a text or position-based locator matched, and that element doesn't look like the recorded one.",
+            )
         except ElementNotFound as exc:
+            not_found = exc
+        try:  # L2 fingerprint match, then L3 AI repair
+            return heal(self, page, step)
+        except HealFailed as failed:
             raise RunFailed(
-                "element_not_found", f"Step {step['id']} ({step['intent']}): {exc}"
+                failed.code,
+                f"Step {step['id']} ({step['intent']}): {not_found} Self-healing: {failed.message}.",
             ) from None
 
     def _value(self, template: str) -> str:
@@ -402,6 +423,7 @@ class Executor:
         self.publish(
             {
                 "type": "checkpoint",
+                "heal": next((h.explanation for h in self.heals if h.step_id == step["id"]), None),
                 "step_id": step["id"],
                 "intent": step["intent"],
                 "reason": reason,
@@ -458,6 +480,13 @@ class Executor:
             run.current_step_id = ""
         run.save()
         self.live.clear(run.id)
+        if self.heals:
+            from .healer import persist
+
+            try:
+                persist(self)
+            except Exception:
+                log.exception("run %s: couldn't save the healed version", run.id)
         record(
             f"run.{status}",
             org=run.org,
