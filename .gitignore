@@ -1,0 +1,38 @@
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Build output
+.next/
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+coverage/
+.coverage
+playwright-report/
+test-results/
+
+# Local data
+evals/reports/*.local.md
+*.log
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
