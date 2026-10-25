@@ -126,6 +126,11 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+    # Several models have a "status" field with different choices; name each enum.
+    "ENUM_NAME_OVERRIDES": {
+        "RecordingStatusEnum": "recordings.models.Recording.Status",
+        "VersionStatusEnum": "workflows.models.WorkflowVersion.Status",
+    },
 }
 
 # --- Auth tokens (docs/10-api-spec.md) ---
