@@ -3,14 +3,18 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { api, ApiError } from "@/lib/api";
-import type { Me, Version, WorkflowDetail } from "@/lib/types";
+import type { Me, Page, Run, Secret, Version, WorkflowDetail } from "@/lib/types";
 
 import { EditView } from "./edit-view";
+import { RunView } from "./run-view";
+import { RunsList } from "./runs-view";
 import { SopView } from "./sop-view";
 import { StepsView } from "./steps-view";
 import { VersionsView } from "./versions-view";
 
 const TABS = [
+  { id: "run", label: "Run" },
+  { id: "runs", label: "Runs" },
   { id: "steps", label: "Steps" },
   { id: "sop", label: "SOP" },
   { id: "edit", label: "Edit" },
@@ -94,6 +98,19 @@ async function WorkflowContent({ params, searchParams }: PageProps<"/workflows/[
         ))}
       </nav>
 
+      {tab === "run" && (
+        <RunView
+          workflowId={id}
+          version={viewing}
+          spec={version.spec}
+          secrets={await api<Secret[]>("/secrets")}
+          isOwner={isOwner}
+          isActive={viewing === active}
+        />
+      )}
+      {tab === "runs" && (
+        <RunsList runs={(await api<Page<Run>>(`/workflows/${encodeURIComponent(id)}/runs?limit=50`)).results} />
+      )}
       {tab === "steps" && <StepsView workflowId={id} version={version} />}
       {tab === "sop" && <SopView workflowId={id} version={version} />}
       {tab === "edit" && (

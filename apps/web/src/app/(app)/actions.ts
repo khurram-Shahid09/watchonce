@@ -86,3 +86,66 @@ export async function recompile(recordingId: string): Promise<SaveResult> {
     throw err;
   }
 }
+
+export interface StartResult extends SaveResult {
+  runId?: string;
+  inputErrors?: Record<string, string>;
+  missing?: string[];
+}
+
+export async function startRun(workflowId: string, inputs: Record<string, unknown>, version?: number): Promise<StartResult> {
+  try {
+    const run = await api<{ id: string }>(`/workflows/${encodeURIComponent(workflowId)}/runs`, {
+      method: "POST",
+      body: JSON.stringify({ inputs, ...(version ? { version } : {}) }),
+    });
+    return { ok: true, runId: run.id };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return {
+        ok: false,
+        message: err.message,
+        inputErrors: err.details.inputs as Record<string, string> | undefined,
+        missing: err.details.missing as string[] | undefined,
+      };
+    }
+    throw err;
+  }
+}
+
+export async function saveSecret(name: string, values: Record<string, string>): Promise<SaveResult> {
+  try {
+    await api("/secrets", { method: "POST", body: JSON.stringify({ name, values }) });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      const details = Object.values(err.details ?? {}).flat().map(String);
+      return { ok: false, message: details[0] ?? err.message };
+    }
+    throw err;
+  }
+}
+
+export async function decideCheckpoint(runId: string, stepId: string, decision: "approve" | "reject", note = ""): Promise<SaveResult> {
+  try {
+    await api(`/runs/${encodeURIComponent(runId)}/checkpoints/${encodeURIComponent(stepId)}`, {
+      method: "POST",
+      body: JSON.stringify({ decision, note }),
+    });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
+
+export async function cancelRun(runId: string): Promise<SaveResult> {
+  try {
+    await api(`/runs/${encodeURIComponent(runId)}/cancel`, { method: "POST" });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
