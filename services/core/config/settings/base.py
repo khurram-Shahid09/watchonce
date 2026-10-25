@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "common",
     "accounts",
     "audit",
+    "recordings",
 ]
 
 MIDDLEWARE = [
@@ -172,11 +173,25 @@ CELERY_TASK_ROUTES = {
     "engine.healer.*": {"queue": "heal", "routing_key": "heal"},
 }
 
-# --- Object storage (MinIO locally, R2 in production) ---
+# --- Object storage (SeaweedFS locally, R2 in production; common/storage.py) ---
+STORAGE_BACKEND = env.str("STORAGE_BACKEND", default="s3")  # "memory" in tests
 S3_ENDPOINT = env.str("S3_ENDPOINT", default="")
+# Host browsers/the extension use for presigned URLs, when it differs from S3_ENDPOINT.
+S3_PUBLIC_ENDPOINT = env.str("S3_PUBLIC_ENDPOINT", default="")
+S3_REGION = env.str("S3_REGION", default="auto")
 S3_BUCKET = env.str("S3_BUCKET", default="")
 S3_ACCESS_KEY_ID = env.str("S3_ACCESS_KEY_ID", default="")
 S3_SECRET_ACCESS_KEY = env.str("S3_SECRET_ACCESS_KEY", default="")
+# Origins allowed to PUT to presigned URLs (bucket CORS, set by `manage.py setup_storage`).
+# The presigned URL itself is the credential, so any origin is acceptable.
+S3_UPLOAD_CORS_ORIGINS = env.list("S3_UPLOAD_CORS_ORIGINS", default=["*"])
+
+# --- Recordings (docs/07-recorder-extension.md) ---
+RECORDING_UPLOAD_URL_TTL = 15 * 60  # seconds
+RECORDING_MAX_EVENTS = 5000
+RECORDING_MAX_FRAMES = 300
+RECORDING_MAX_EVENTS_BYTES = 20 * 1024 * 1024
+RECORDING_MAX_FRAME_BYTES = 2 * 1024 * 1024
 
 # --- Secrets vault ---
 SECRETS_MASTER_KEY = env.str("SECRETS_MASTER_KEY", default="")

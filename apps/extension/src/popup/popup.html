@@ -36,12 +36,39 @@
         <label for="description">What does this task do?</label>
         <textarea id="description" rows="3" maxlength="1000" placeholder="e.g. Create a vendor invoice from an email"></textarea>
         <p class="muted" id="summary"></p>
-        <div class="row">
-          <button id="download" class="primary">Download recording</button>
-          <button id="discard">Discard</button>
+        <div id="upload-actions">
+          <button id="upload" class="primary wide">Upload to workspace</button>
+          <div class="row">
+            <button id="download">Download</button>
+            <button id="discard">Discard</button>
+          </div>
         </div>
-        <p class="hint">Uploading to your workspace arrives in the next build.</p>
+        <div id="upload-progress" class="progress" hidden>
+          <progress id="upload-bar" max="1" value="0"></progress>
+          <span id="upload-text">Uploading…</span>
+        </div>
+        <div id="upload-done" class="done" hidden>
+          <p>✓ Uploaded. WatchOnce is turning it into a workflow.</p>
+          <p class="muted">Recording <code id="upload-id"></code></p>
+          <button id="new-recording" class="primary wide">New recording</button>
+        </div>
       </section>
+
+      <details id="connection" class="connection">
+        <summary id="connection-summary">Not connected</summary>
+        <form id="connect-form" hidden>
+          <label for="api-url">WatchOnce address</label>
+          <input id="api-url" type="url" required value="http://localhost:8000" />
+          <label for="api-token">Access token</label>
+          <input id="api-token" type="password" required placeholder="pat_…" autocomplete="off" />
+          <p class="hint">Create one in WatchOnce under Settings → Access tokens.</p>
+          <button id="connect" type="submit" class="primary wide">Connect</button>
+        </form>
+        <div id="connected" hidden>
+          <p class="muted"><span id="connected-email"></span><br /><span id="connected-url"></span></p>
+          <button id="disconnect">Disconnect</button>
+        </div>
+      </details>
 
       <ul id="warnings" class="warnings"></ul>
       <p id="error" class="error" role="alert" hidden></p>

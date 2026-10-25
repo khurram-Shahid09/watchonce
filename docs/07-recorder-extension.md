@@ -83,7 +83,10 @@ Each event:
 ## Upload
 - On Stop: user enters the task description → `POST /recordings` → presigned URLs → parallel PUT of `events.json` + frames → `POST /recordings/{id}/complete`
 - Buffered in IndexedDB during recording, so a browser crash doesn't lose the recording
-- Retry with exponential backoff. Resume partial uploads.
+- Each PUT is retried (3 attempts with backoff); a failed upload can be retried from the popup and creates a fresh recording. Resuming a partial upload is deferred.
+- Connecting: the popup takes the WatchOnce address and a personal access token (`pat_…`), asks Chrome for access to that one origin, and checks the token with `GET /me` (which names the token's workspace). The token stays in `chrome.storage.local` and is never sent back to the popup or to storage hosts.
+- Frames go straight to object storage, which therefore needs a CORS rule for PUT (`manage.py setup_storage`; the same rule is needed on R2). The API itself needs no CORS for the extension: the granted host permission covers it.
+- The upload runs in the service worker, so closing the popup doesn't stop it. A worker restart mid-upload marks it failed ("interrupted, try again").
 
 ## UX details
 - Red recording dot badge on the extension icon + a small floating "Recording… Pause | Stop" pill in-page (shadow-DOM isolated so it's never recorded)

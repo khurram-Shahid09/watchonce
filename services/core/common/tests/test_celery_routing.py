@@ -21,3 +21,11 @@ def test_tasks_route_to_their_own_queue(task_name: str, queue: str) -> None:
 def test_queues_do_not_share_bindings() -> None:
     keys = {(q.exchange.name, q.routing_key) for q in app.conf.task_queues}
     assert len(keys) == 3
+
+
+def test_worker_registers_pipeline_tasks() -> None:
+    """A worker only runs tasks it imported; eager tests would never notice a missing one."""
+    from config.celery import app
+
+    app.loader.import_default_modules()
+    assert "engine.compiler.compile_recording" in app.tasks

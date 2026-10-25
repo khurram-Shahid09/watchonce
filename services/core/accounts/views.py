@@ -201,7 +201,8 @@ class MeView(APIView):
     @extend_schema(responses={200: MeSerializer})
     def get(self, request: Request) -> Response:
         user = User.objects.prefetch_related("memberships__org").get(pk=request.user.pk)
-        return Response(MeSerializer(user).data)
+        token = request.auth if isinstance(request.auth, ApiToken) else None
+        return Response(MeSerializer(user, context={"token": token}).data)
 
 
 # --- Personal access tokens (the extension signs in with these) ---

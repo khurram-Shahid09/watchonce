@@ -87,3 +87,16 @@ def test_revoke_is_idempotent_and_audited_once(make_account) -> None:
     assert account.client.delete(f"/api/v1/tokens/{token_id}").status_code == 204
     assert account.client.delete(f"/api/v1/tokens/{token_id}").status_code == 204
     assert AuditLog.objects.for_org(account.org).filter(action="token.revoked").count() == 1
+
+
+def test_me_reports_the_tokens_workspace(make_account) -> None:
+    account = make_account("sara@acme.test")
+    raw = create_token(account.client, name="Chrome").data["token"]
+    me = pat_client(raw).get("/api/v1/me").data
+    assert me["token"]["name"] == "Chrome"
+    assert me["token"]["org"] == {
+        "id": account.org.id,
+        "name": account.org.name,
+        "plan": account.org.plan,
+    }
+    assert account.client.get("/api/v1/me").data["token"] is None

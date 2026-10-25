@@ -15,7 +15,11 @@ Chrome → `chrome://extensions` → turn on **Developer mode** → **Load unpac
 1. Open the web app (e.g. the Acme portal on http://localhost:3001).
 2. Click the WatchOnce icon → **Start recording**. Chrome asks for access to that one site.
 3. Do the task. A "Recording…" pill shows in the corner (Pause / Stop).
-4. **Stop** → describe the task → **Download recording** (upload to the workspace arrives with Day 5).
+4. **Stop** → describe the task → **Upload to workspace** (or **Download** the JSON).
+
+To upload, connect once: open **Connect your WatchOnce workspace** at the bottom of the popup, enter the
+WatchOnce address (locally `http://localhost:8000`) and a personal access token (`pat_…`, from
+`POST /api/v1/tokens` until the dashboard's token page lands). The upload continues if you close the popup.
 
 Shortcut: `Alt+Shift+R` (stops a running recording; otherwise opens the popup).
 
@@ -28,12 +32,14 @@ Shortcut: `Alt+Shift+R` (stops a running recording; otherwise opens the popup).
 ## Tests
 
 ```bash
-pnpm --filter @watchonce/extension test        # unit tests (descriptor, masking) under jsdom
+pnpm --filter @watchonce/extension test        # unit tests (descriptor, masking, upload) under jsdom
 
 # End-to-end: records the "create invoice" task on the Acme portal in real Chromium
 pnpm dev:portal                                # in another terminal
 pnpm --filter @watchonce/extension build:e2e   # test build (pre-grants site access); never ship it
 cd services/core && uv run --with playwright python -I ../../apps/extension/e2e/record_acme.py
+# also upload and check normalization (needs the API, SeaweedFS and a compile worker):
+WATCHONCE_PAT=pat_... uv run --with playwright python -I ../../apps/extension/e2e/record_acme.py
 pnpm --filter @watchonce/extension build       # restore the normal build afterwards
 ```
 

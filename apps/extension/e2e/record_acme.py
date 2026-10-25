@@ -1,15 +1,23 @@
 """End-to-end: load the extension (E2E build) into Chromium, record the "create invoice" task
-on the Acme portal, export the recording and check it.
+on the Acme portal, export the recording and check it. With WATCHONCE_PAT set, also connect
+the extension to the API (WATCHONCE_API, default http://localhost:8000), upload, and check the
+normalized steps once the compile worker has processed the recording.
 
 Prereqs: the portal on http://localhost:3001 (pnpm dev:portal) and `pnpm --filter
 @watchonce/extension build:e2e`. Run from services/core (it has Playwright available):
 
     uv run --with playwright python -I ../../apps/extension/e2e/record_acme.py [out.json]
+
+The upload stage also needs the API, object storage and a compile worker:
+    uv run celery -A config worker -Q compile --pool=solo
 """
 
 import json
+import os
 import sys
 import tempfile
+import time
+import urllib.request
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -18,6 +26,8 @@ PORTAL = "http://localhost:3001"
 DIST = Path(__file__).resolve().parents[1] / "dist"
 PASSWORD = "acme-demo"
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else None
+API = os.environ.get("WATCHONCE_API", "http://localhost:8000")
+PAT = os.environ.get("WATCHONCE_PAT", "")
 
 failures: list[str] = []
 
@@ -98,6 +108,20 @@ with tempfile.TemporaryDirectory() as profile, sync_playwright() as p:
     send({"kind": "recording.stop"})
     send({"kind": "recording.describe", "description": "Create a vendor invoice"})
     data = send({"kind": "recording.export"})
+
+    uploaded: dict = {}
+    if PAT:
+        connected = send({"kind": "connection.set", "apiUrl": API, "token": PAT})
+        check(bool((connected.get("connection") or {}).get("orgName")), "extension connected to the workspace")
+        check(PAT not in json.dumps(connected), "the popup never receives the token back")
+        send({"kind": "recording.upload"})
+        deadline = time.time() + 60
+        while time.time() < deadline:
+            uploaded = send({"kind": "state.get"})["session"].get("upload") or {}
+            if uploaded.get("state") in ("done", "failed"):
+                break
+            time.sleep(0.5)
+        check(uploaded.get("state") == "done", f"upload finished ({uploaded.get('error') or uploaded.get('recordingId')})")
     worker_log = worker.evaluate("async () => (await chrome.storage.session.get('diag')).diag || []")
     ctx.close()
 
@@ -146,6 +170,38 @@ check(all(f.startswith("data:image/webp;base64,") for f in data["frames"].values
 check("intruder" not in raw, "another tab on the same site was not recorded")
 check(data["recording"]["description"] == "Create a vendor invoice", "task description saved")
 check(len({e["seq"] for e in events}) == len(events) and types.count("navigate") >= 4, "seq unique; navigations present")
+
+
+
+def api_get(path: str) -> dict:
+    req = urllib.request.Request(f"{API}/api/v1{path}", headers={"Authorization": f"Bearer {PAT}"})
+    with urllib.request.urlopen(req, timeout=10) as response:  # noqa: S310 - local test server
+        return json.loads(response.read())
+
+
+if PAT and uploaded.get("recordingId"):
+    rec_id = uploaded["recordingId"]
+    rec: dict = {}
+    for _ in range(60):  # the compile worker normalizes it
+        rec = api_get(f"/recordings/{rec_id}")
+        if rec["candidate_count"] is not None or rec["status"] == "failed":
+            break
+        time.sleep(0.5)
+    print(f"\nuploaded {rec_id}: status={rec['status']} frames={rec['frame_count']} candidates={rec['candidate_count']}")
+    check(rec["frame_count"] == len(data["frames"]), "every frame uploaded")
+    check(rec["candidate_count"] is not None, "compile worker normalized the recording")
+    if rec["candidate_count"] is not None:
+        result = api_get(f"/recordings/{rec_id}/candidates")
+        steps = [(c["action"], (c.get("element") or {}).get("name")) for c in result["candidates"]]
+        for c in result["candidates"]:
+            value = c.get("value") or c.get("option_label") or ""
+            kinds = [loc["kind"] for loc in c.get("target", {}).get("locators", [])]
+            print(f"  {c['id']:>4} {c['action']:<8} {str((c.get('element') or {}).get('name')):<24} {value!s:<34} {kinds}")
+        check(steps[0][0] == "navigate", "candidates start with a navigate step")
+        check(("select", "Vendor") in steps, "custom dropdown became one select step")
+        check(sum(1 for a, _ in steps if a == "fill") == 5, "five fills: username, password, amount, date, description")
+        check(PASSWORD not in json.dumps(result) and "4111" not in json.dumps(result), "no secrets in candidates")
+        check(len(steps) < len(events) * 0.7, f"normalizing removed noise ({len(events)} events -> {len(steps)} steps)")
 
 print(f"\n{'PASSED' if not failures else f'{len(failures)} FAILED'}")
 sys.exit(1 if failures else 0)
