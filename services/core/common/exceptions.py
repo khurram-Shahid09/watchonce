@@ -29,7 +29,8 @@ def _code_for(exc: exceptions.APIException) -> str:
         return exc.error_code
     if isinstance(exc, exceptions.ValidationError):
         return "validation_error"
-    return str(exc.default_code)
+    # A specific code given at raise time, e.g. PermissionDenied(..., code="owner_required").
+    return str(getattr(exc.detail, "code", None) or exc.default_code)
 
 
 def api_exception_handler(exc: Exception, context: dict[str, Any]) -> Response | None:

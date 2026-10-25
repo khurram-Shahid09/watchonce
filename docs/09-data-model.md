@@ -101,7 +101,7 @@ Values are **never returned by the API**.
 
 ### audit_log
 | org_id | actor (`user:{id}`/`system`) | action (e.g. `workflow.version.activated`) | entity_type | entity_id | metadata (jsonb) | ip | user_agent |
-Append-only. No UPDATE/DELETE grants for the app role.
+Append-only, enforced by a Postgres trigger that rejects UPDATE, DELETE and TRUNCATE. The only exception is an explicit, transaction-scoped purge (`audit.service.purge`, for the retention job and workspace deletion).
 
 ### llm_calls
 | org_id | purpose (`understand`/`sop`/`repair`) | entity_id | provider (`claude`/`gemini`) | model | prompt_version | input_tokens | output_tokens | cache_read_tokens | cost_usd | latency_ms | stop_reason |
