@@ -25,6 +25,8 @@ Demo portal ────────── Vercel                         https:
 
 **No domain is purchased for the MVP.** `sslip.io` resolves `api.203-0-113-10.sslip.io` to `203.0.113.10`, so Caddy can obtain a real HTTPS certificate for the VPS without owning a domain. Exact Vercel project names depend on availability at creation time. Moving to a custom domain later means changing `APP_BASE_URL`, `API_BASE_URL`, `CORS_ORIGINS`, the Caddyfile host and the extension's API URL. No code changes.
 
+**Demo portal hosting:** the "Portal v2" switch is held in the portal's server memory (see [demo/acme-portal](../demo/acme-portal/README.md)). On Vercel, serverless instances don't share memory, so the switch may not reach the runner reliably. If that shows up in testing, run the portal as one more small container on the VPS instead (open question D10 in [16](16-open-questions.md)).
+
 Runner concurrency rule of thumb: ~1 GB RAM per concurrent Chromium context under load. Scale `worker-run` horizontally to more VPS nodes later (they only need Redis + DB + R2 access).
 
 ## Containers
