@@ -1,5 +1,6 @@
 """Settings shared by every environment. Environment-specific overrides live in dev/prod/test."""
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -31,9 +32,11 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "corsheaders",
     "channels",
+    "rest_framework_simplejwt.token_blacklist",
     # watchonce
     "common",
     "accounts",
+    "audit",
 ]
 
 MIDDLEWARE = [
@@ -99,7 +102,17 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "accounts.authentication.PersonalAccessTokenAuthentication",  # "Bearer pat_..."
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # "Bearer <jwt>"
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_PAGINATION_CLASS": "common.pagination.CursorPagination",
+    "DEFAULT_THROTTLE_RATES": {
+        "login_ip": "20/min",
+        "login_email": "5/min",  # with login_ip: brute-force lockout per account
+        "register": "10/hour",
+    },
     "EXCEPTION_HANDLER": "common.exceptions.api_exception_handler",
 }
 SPECTACULAR_SETTINGS = {
@@ -109,6 +122,29 @@ SPECTACULAR_SETTINGS = {
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+}
+
+# --- Auth tokens (docs/10-api-spec.md) ---
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "sub",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+REFRESH_COOKIE = {
+    "key": "wo_refresh",
+    "path": "/api/v1/auth/",
+    "httponly": True,
+    "secure": not DEBUG,
+    "samesite": "Lax",  # served first-party through the dashboard's proxy (see docs/03)
+}
+
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": REDIS_URL}
 }
 
 # --- CORS ---
