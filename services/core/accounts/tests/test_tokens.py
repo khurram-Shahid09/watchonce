@@ -4,7 +4,7 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from accounts.models import ApiToken, Membership
+from accounts.models import ApiToken, Membership, User
 from audit.models import AuditLog
 
 pytestmark = pytest.mark.django_db
@@ -100,3 +100,18 @@ def test_me_reports_the_tokens_workspace(make_account) -> None:
         "plan": account.org.plan,
     }
     assert account.client.get("/api/v1/me").data["token"] is None
+
+
+def test_issue_token_command_creates_a_workspace_when_needed(db) -> None:
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    user = User.objects.create_user("solo@acme.test", "x" * 12)
+    out = StringIO()
+    call_command("issue_token", "SOLO@acme.test", stdout=out)
+    raw = out.getvalue().strip().splitlines()[-1]
+    assert raw.startswith("pat_")
+    me = pat_client(raw).get("/api/v1/me").data
+    assert me["email"] == user.email
+    assert me["token"]["org"]["name"] == "My workspace"
