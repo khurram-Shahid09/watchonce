@@ -24,6 +24,8 @@ dependencies = [
     "anthropic>=1.13.0",
     "google-genai>=2.29.0",
     "httpx>=0.28.1",
+    "playwright>=1.63.0",
+    "cryptography>=50.0.2",
 ]
 
 [dependency-groups]
@@ -74,3 +76,4 @@ django_settings_module = "config.settings.test"
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
 addopts = "-q --strict-markers"
+markers = ["browser: drives a real Chromium (needs `playwright install chromium`)"]

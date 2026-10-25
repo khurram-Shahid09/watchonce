@@ -35,6 +35,16 @@ load spec (pinned version) → validate → resolve inputs/secrets → new brows
 - A failed row doesn't stop the batch (configurable "stop on first failure")
 - Results CSV = input columns + `status`, `error`, all outputs, `run_id`
 
+### Implementation notes (MVP)
+- Code: `engine/runner/` (`executor.py`, `locate.py`, `browser.py`, `tasks.py`), `runs/` (models, API, `live.py` Redis glue), `secrets_vault/` (encrypted logins).
+- **Run workers listen on the `run` queue only** (`celery -A config worker -Q run`), so a run waiting at a checkpoint never blocks compiles. Run tasks are acknowledged on receipt and never retried: a run that died may already have submitted something.
+- **Locating**: each locator counts only if exactly one *visible* element matches; locators are tried in order, repeatedly, until the step timeout. `rung` is `L0` (primary) or `L1` (a fallback). Custom dropdowns: open the combobox, then click the option by its accessible name (`option`, `menuitem`, then exact text).
+- **Domain allowlist** on every request via Playwright routing (`allowed_domains` + `RUNNER_EXTRA_ALLOWED_HOSTS`); a blocked navigation fails the step with `domain_blocked`, blocked sub-resources are just dropped.
+- **Checkpoints**: the target is located first and outlined, the screenshot is taken, the run goes `awaiting_approval`, and the worker `BLPOP`s `run:{id}:decision` (`RUN_CHECKPOINT_TIMEOUT_S`, 30 min → `timed_out`). Waiting time doesn't count toward `RUN_MAX_SECONDS`. Cancel sets `run:{id}:cancel` and also wakes a waiting runner.
+- **Secrets** are decrypted in the worker only, typed into the page, and scrubbed (`•••`) from every error message and event.
+- **Artifacts**: one JPEG after every step under `org/{org}/runs/{run}/`, plus the approval screenshot (kept on the checkpoint decision). Each screenshot is also published as a live frame.
+- Playwright's sync API runs an event loop in the worker thread, so the runner process sets `DJANGO_ALLOW_ASYNC_UNSAFE` (it's genuinely synchronous) and closes its DB connections after each run.
+
 ## Self-healing ladder
 
 When locating fails, the runner climbs the ladder. It stops at the first rung that succeeds.
@@ -77,8 +87,8 @@ Accept if top score ≥ 0.75 **and** (top − second) ≥ 0.1 (an unambiguous wi
 - The **current run continues** with the healed locator, except on checkpoint steps, where the approval screen shows the heal explanation clearly.
 
 ## Live view
-- After each action (and every 1 s while waiting), a JPEG frame (quality 50, 960 px) goes to Redis pub/sub channel `run:{id}:frames`
-- API WebSocket `/ws/runs/{id}` relays frames + step events to authorized viewers
+- After each step a JPEG frame goes to Redis pub/sub channel `run:{id}:events` with the step events (`step`, `checkpoint`, `approved`, `frame`, `done`); the latest frame is also kept in `run:{id}:frame` for late viewers
+- `GET /runs/{id}/events` (Server-Sent Events) sends a snapshot, the latest frame, then live events; the dashboard relays it (decision D11)
 - The dashboard shows the frame, highlights the current step in the step list, and shows heal/checkpoint banners
 
 ## Playwright export

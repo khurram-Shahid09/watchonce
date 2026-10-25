@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "recordings",
     "workflows",
     "metering",
+    "secrets_vault",
+    "runs",
 ]
 
 MIDDLEWARE = [
@@ -130,6 +132,8 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "RecordingStatusEnum": "recordings.models.Recording.Status",
         "VersionStatusEnum": "workflows.models.WorkflowVersion.Status",
+        "RunStatusEnum": "runs.models.Run.Status",
+        "RunStepStatusEnum": "runs.models.RunStep.Status",
     },
 }
 
@@ -225,6 +229,12 @@ GEMINI_FALLBACK_MODELS = env.list(
 LLM_MONTHLY_BUDGET_USD = env.float("LLM_MONTHLY_BUDGET_USD", default=10.0)
 COMPILE_MAX_FRAMES = 25  # screenshots per Understand call
 COMPILE_MAX_CANDIDATES = 120
+
+# --- Runner (engine/runner, docs/08) ---
+RUN_MAX_SECONDS = env.int("RUN_MAX_SECONDS", default=600)  # time waiting for approval excluded
+RUN_CHECKPOINT_TIMEOUT_S = env.int("RUN_CHECKPOINT_TIMEOUT_S", default=30 * 60)
+# Hosts a workflow may reach besides its allowed_domains (e.g. a CDN the app loads from).
+RUNNER_EXTRA_ALLOWED_HOSTS = env.list("RUNNER_EXTRA_ALLOWED_HOSTS", default=[])
 
 # --- Secrets vault ---
 SECRETS_MASTER_KEY = env.str("SECRETS_MASTER_KEY", default="")

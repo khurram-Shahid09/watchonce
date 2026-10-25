@@ -136,7 +136,9 @@ uv run python manage.py setup_storage                       # bucket + CORS so t
 uv run python manage.py createsuperuser
 uv run python manage.py issue_token you@example.com           # pat_… token for the recorder extension
 uv run uvicorn config.asgi:application --reload --port 8000   # API: /healthz, /readyz, /api/v1/docs/, /admin/
-uv run celery -A config worker -Q compile,run,heal --pool=solo -l info   # --pool=solo on Windows
+uv run celery -A config worker -Q compile --pool=solo -l info            # AI compile (--pool=solo on Windows)
+uv run playwright install chromium                                        # once, for the runner
+uv run celery -A config worker -Q run --pool=solo -n run@%h -l info       # runs workflows in Chromium
 uv run pytest
 
 cd ../..

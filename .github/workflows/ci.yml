@@ -44,6 +44,8 @@ jobs:
           enable-cache: true
       - name: Install
         run: uv sync --locked
+      - name: Chromium for runner tests
+        run: uv run playwright install --with-deps chromium
       - name: Lint
         run: uv run ruff check . && uv run ruff format --check .
       - name: Type-check

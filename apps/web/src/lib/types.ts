@@ -76,3 +76,56 @@ export interface Recording {
   created_at: string;
   uploaded_at: string | null;
 }
+
+export type RunStatus =
+  | "queued"
+  | "running"
+  | "awaiting_approval"
+  | "succeeded"
+  | "failed"
+  | "rejected"
+  | "cancelled"
+  | "timed_out";
+
+export interface Run {
+  id: string;
+  workflow_id: string;
+  workflow_name: string;
+  version: number;
+  status: RunStatus;
+  triggered_by: string;
+  inputs: Record<string, unknown>;
+  outputs: Record<string, unknown>;
+  current_step_id: string;
+  error_code: string;
+  error_message: string;
+  started_at: string | null;
+  finished_at: string | null;
+  created_at: string;
+}
+
+export interface RunStep {
+  step_id: string;
+  seq: number;
+  status: "running" | "ok" | "healed" | "failed" | "skipped" | "awaiting_approval";
+  rung: string;
+  screenshot_ref: string;
+  error: string;
+  started_at: string | null;
+  finished_at: string | null;
+}
+
+export interface RunDetail extends Run {
+  steps: RunStep[];
+  decisions: { step_id: string; decision: "approve" | "reject"; decided_by: string | null; note: string; created_at: string }[];
+}
+
+export interface Secret {
+  id: string;
+  name: string;
+  fields: string[];
+  created_at: string;
+  rotated_at: string | null;
+}
+
+export const FINISHED: RunStatus[] = ["succeeded", "failed", "rejected", "cancelled", "timed_out"];

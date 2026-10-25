@@ -28,6 +28,8 @@
 | D7 | Data region | Default (US/EU) for MVP | Canadian region when a Canadian pilot asks |
 | D8 | License | ✅ **No license, private repo** (all rights reserved) | Revisit before making the repo public |
 | D9 | Timeline | 15 working days (demo-able cut at day 10) | Faster cut: skip batch + Google OAuth → demo at ~day 8 |
+| D11 | Live run view transport | **Server-Sent Events** from the API (`GET /runs/{id}/events`), relayed by the dashboard's server, which holds the session. A browser WebSocket would need a token in the browser; live view only needs server → browser, and approvals use REST. `/ws/runs` is not built. | WebSocket with a short-lived ticket |
+| D12 | Which saved login a workflow uses | **By name**: `{{secrets.acme_login.password}}` uses the workspace secret named `acme_login`. No per-workflow binding table in the MVP. | `workflow_secrets` bindings (`PUT /workflows/{id}/secrets/{name}`) |
 | D10 | Demo portal hosting | Vercel as planned; move it to a container on the VPS if the "Portal v2" switch is unreliable there (it's held in server memory) | VPS from the start |
 
 ## Open product questions (answer during the pilot, not blocking)

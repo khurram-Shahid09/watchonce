@@ -2,6 +2,8 @@ import os
 
 # Tests must not depend on a developer's secrets; provide safe defaults before base reads the env.
 os.environ.setdefault("DJANGO_SECRET_KEY", "test-secret-key-not-for-production-" + "x" * 20)
+# Test-only master key (32 bytes, base64).
+os.environ.setdefault("SECRETS_MASTER_KEY", "dGVzdC1tYXN0ZXIta2V5LTMyLWJ5dGVzLWxvbmchISE=")
 os.environ.setdefault("DATABASE_URL", "postgres://watchonce:watchonce@localhost:5433/watchonce")
 
 from .base import *  # noqa: E402, F403
