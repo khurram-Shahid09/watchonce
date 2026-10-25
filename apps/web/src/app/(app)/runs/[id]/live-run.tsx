@@ -13,6 +13,7 @@ interface Checkpoint {
   step_id: string;
   reason: string;
   screenshot_ref: string;
+  heal?: string | null;
 }
 
 type LiveEvent =
@@ -20,6 +21,7 @@ type LiveEvent =
   | { type: "step"; step_id: string; status: RunStep["status"]; error?: string; rung?: string; screenshot_ref?: string }
   | { type: "frame"; step_id: string; jpeg_b64: string }
   | ({ type: "checkpoint"; intent: string } & Checkpoint)
+  | { type: "heal"; step_id: string; rung: string; score: number; explanation: string }
   | { type: "approved"; step_id: string }
   | { type: "done"; status: RunStatus };
 
@@ -37,6 +39,7 @@ interface StepState {
   error?: string;
   rung?: string;
   screenshot_ref?: string;
+  heal?: string;
 }
 
 function toStates(steps: RunStep[]): Record<string, StepState> {
@@ -82,16 +85,28 @@ export function LiveRun({ initial, spec }: { initial: RunDetail; spec: WorkflowS
           setCurrent(event.step_id);
           setSteps((prev) => ({
             ...prev,
-            [event.step_id]: { status: event.status, error: event.error, rung: event.rung, screenshot_ref: event.screenshot_ref },
+            [event.step_id]: {
+              ...prev[event.step_id],
+              status: event.status,
+              error: event.error,
+              rung: event.rung,
+              screenshot_ref: event.screenshot_ref,
+            },
           }));
           if (event.status === "running") setStatus((s) => (s === "queued" ? "running" : s));
+          break;
+        case "heal":
+          setSteps((prev) => ({
+            ...prev,
+            [event.step_id]: { ...(prev[event.step_id] ?? { status: "running" }), rung: event.rung, heal: event.explanation },
+          }));
           break;
         case "frame":
           setFrame(event.jpeg_b64);
           break;
         case "checkpoint":
           setStatus("awaiting_approval");
-          setCheckpoint({ step_id: event.step_id, reason: event.reason, screenshot_ref: event.screenshot_ref });
+          setCheckpoint({ step_id: event.step_id, reason: event.reason, screenshot_ref: event.screenshot_ref, heal: event.heal });
           setSteps((prev) => ({ ...prev, [event.step_id]: { status: "awaiting_approval" } }));
           break;
         case "approved":
@@ -106,7 +121,7 @@ export function LiveRun({ initial, spec }: { initial: RunDetail; spec: WorkflowS
           break;
       }
     };
-    for (const type of ["snapshot", "step", "frame", "checkpoint", "approved", "done"]) {
+    for (const type of ["snapshot", "step", "frame", "checkpoint", "heal", "approved", "done"]) {
       source.addEventListener(type, handle as EventListener);
     }
     source.onopen = () => setConnected(true);
@@ -157,6 +172,11 @@ export function LiveRun({ initial, spec }: { initial: RunDetail; spec: WorkflowS
             <p className="font-semibold text-warn">Approval needed: {checkpointStep?.intent ?? checkpoint.step_id}</p>
             <p className="text-sm">{checkpoint.reason}</p>
             <p className="mt-1 text-xs text-muted">The highlighted element is what will be clicked if you approve.</p>
+            {checkpoint.heal && (
+              <p className="mt-2 rounded-md bg-surface px-3 py-2 text-sm">
+                <b>The page changed:</b> {checkpoint.heal} Check that the highlighted element is the right one.
+              </p>
+            )}
           </div>
           {checkpoint.screenshot_ref && (
             // eslint-disable-next-line @next/next/no-img-element -- short-lived storage links
@@ -215,8 +235,12 @@ export function LiveRun({ initial, spec }: { initial: RunDetail; spec: WorkflowS
                     <div>
                       {step.intent}
                       {state?.rung === "L1" && <span className="ml-1 text-xs text-warn">(fallback locator)</span>}
+                      {(state?.rung === "L2" || state?.rung === "L3") && (
+                        <span className="ml-1 rounded bg-warn-soft px-1 text-xs text-warn">self-healed</span>
+                      )}
                     </div>
                     <div className="text-xs text-muted">{ACTION_LABEL[step.action]}</div>
+                    {state?.heal && <div className="mt-1 text-xs text-warn">{state.heal}</div>}
                     {state?.error && <div className="mt-1 text-xs text-danger">{state.error}</div>}
                   </div>
                 </div>

@@ -110,6 +110,11 @@ async function WorkflowList() {
                   <span>{w.step_count} steps</span>
                   <span>{w.input_count} inputs</span>
                   {w.active_version && <span>v{w.active_version.version} active</span>}
+                  {w.pending_heals > 0 && (
+                    <span className="rounded bg-warn-soft px-1.5 font-medium text-warn">
+                      {w.pending_heals} fix{w.pending_heals === 1 ? "" : "es"} to approve
+                    </span>
+                  )}
                   <span>Updated {when(w.updated_at)}</span>
                 </div>
               </Link>

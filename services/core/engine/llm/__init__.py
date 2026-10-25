@@ -19,7 +19,11 @@ def get_provider(stage: str) -> LLMProvider:
         return ClaudeProvider(
             settings.CLAUDE_MODEL,
             settings.ANTHROPIC_API_KEY,
-            {"understand": settings.CLAUDE_EFFORT_UNDERSTAND, "sop": settings.CLAUDE_EFFORT_SOP},
+            {
+                "understand": settings.CLAUDE_EFFORT_UNDERSTAND,
+                "sop": settings.CLAUDE_EFFORT_SOP,
+                "repair": settings.CLAUDE_EFFORT_REPAIR,
+            },
         )
     if name == "gemini":
         from .gemini import GeminiProvider

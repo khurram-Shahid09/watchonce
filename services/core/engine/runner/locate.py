@@ -28,9 +28,12 @@ class Found:
     locator: Locator
     index: int  # position in target.locators
     spec: dict[str, Any]
+    healed: str | None = None  # "L2" / "L3" when self-healing found it
 
     @property
     def rung(self) -> str:
+        if self.healed:
+            return self.healed
         return "L0" if self.index == 0 else "L1"
 
 

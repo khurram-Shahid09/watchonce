@@ -14,6 +14,7 @@ class WorkflowSerializer(serializers.ModelSerializer):
     active_version = VersionSummarySerializer(read_only=True)
     step_count = serializers.SerializerMethodField()
     input_count = serializers.SerializerMethodField()
+    pending_heals = serializers.SerializerMethodField(help_text="Self-heals waiting for approval.")
 
     class Meta:
         model = Workflow
@@ -25,6 +26,7 @@ class WorkflowSerializer(serializers.ModelSerializer):
             "active_version",
             "step_count",
             "input_count",
+            "pending_heals",
             "manual_duration_sec",
             "archived_at",
             "created_at",
@@ -47,6 +49,9 @@ class WorkflowSerializer(serializers.ModelSerializer):
 
     def get_input_count(self, wf: Workflow) -> int:
         return len(self._spec(wf).get("inputs", []))
+
+    def get_pending_heals(self, wf: Workflow) -> int:
+        return wf.heals.filter(decision="pending").count()
 
 
 class WorkflowDetailSerializer(WorkflowSerializer):

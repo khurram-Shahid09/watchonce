@@ -3,7 +3,15 @@
 from pathlib import Path
 from typing import Protocol
 
-from .types import SopRequest, SopResult, Understanding, UnderstandRequest, Usage
+from .types import (
+    RepairRequest,
+    RepairResult,
+    SopRequest,
+    SopResult,
+    Understanding,
+    UnderstandRequest,
+    Usage,
+)
 
 PROMPTS = Path(__file__).parent / "prompts"
 
@@ -27,6 +35,7 @@ class LLMProvider(Protocol):
 
     def understand(self, req: UnderstandRequest) -> tuple[Understanding, Usage]: ...
     def write_sop(self, req: SopRequest) -> tuple[SopResult, Usage]: ...
+    def repair(self, req: RepairRequest) -> tuple[RepairResult, Usage]: ...
 
 
 def load_prompt(stage: str, provider: str) -> tuple[str, str]:

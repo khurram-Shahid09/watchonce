@@ -18,4 +18,7 @@ urlpatterns = [
     ),
     path(R + "/screenshots/<str:name>", views.RunScreenshotView.as_view(), name="run-screenshot"),
     path(R + "/events", views.run_events, name="run-events"),
+    path("heals", views.HealListView.as_view(), name="heal-list"),
+    path("heals/<str:heal_id>", views.HealDetailView.as_view(), name="heal-detail"),
+    path("heals/<str:heal_id>/decision", views.HealDecisionView.as_view(), name="heal-decision"),
 ]

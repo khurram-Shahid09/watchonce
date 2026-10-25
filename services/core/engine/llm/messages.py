@@ -4,7 +4,7 @@ maps parts onto its own content blocks; the wording is shared."""
 import json
 from typing import Any
 
-from .types import Image, SopRequest, UnderstandRequest
+from .types import Image, RepairRequest, SopRequest, UnderstandRequest
 
 Part = str | Image
 
@@ -60,4 +60,25 @@ def sop_parts(req: SopRequest) -> list[Part]:
         for image in req.images:
             parts.append(f"[{image.label}]")
             parts.append(image)
+    return parts
+
+
+def repair_parts(req: RepairRequest) -> list[Part]:
+    context = {
+        "intent": req.intent,
+        "action": req.action,
+        "previous_step": req.previous_intent,
+        "next_step": req.next_intent,
+        "page_url": req.page_url,
+        "recorded_element": req.fingerprint,
+    }
+    parts: list[Part] = [
+        "Step to repair:\n```json\n" + json.dumps(context, ensure_ascii=False, indent=1) + "\n```",
+        "Candidate elements on the current page, most similar first:\n```json\n"
+        + json.dumps(req.candidates, ensure_ascii=False, indent=1)
+        + "\n```",
+    ]
+    for image in req.images:
+        parts.append(f"[{image.label}]")
+        parts.append(image)
     return parts

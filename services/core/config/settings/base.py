@@ -134,6 +134,8 @@ SPECTACULAR_SETTINGS = {
         "VersionStatusEnum": "workflows.models.WorkflowVersion.Status",
         "RunStatusEnum": "runs.models.Run.Status",
         "RunStepStatusEnum": "runs.models.RunStep.Status",
+        "HealDecisionEnum": "runs.models.HealEvent.Decision",
+        "ApproveRejectEnum": ["approve", "reject"],
     },
 }
 

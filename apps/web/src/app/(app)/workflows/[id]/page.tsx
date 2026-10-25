@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { api, ApiError } from "@/lib/api";
-import type { Me, Page, Run, Secret, Version, WorkflowDetail } from "@/lib/types";
+import type { Heal, Me, Page, Run, Secret, Version, WorkflowDetail } from "@/lib/types";
 
 import { EditView } from "./edit-view";
+import { HealsView } from "./heals-view";
 import { RunView } from "./run-view";
 import { RunsList } from "./runs-view";
 import { SopView } from "./sop-view";
@@ -19,6 +20,7 @@ const TABS = [
   { id: "sop", label: "SOP" },
   { id: "edit", label: "Edit" },
   { id: "versions", label: "Versions" },
+  { id: "heals", label: "Heals" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
@@ -94,6 +96,9 @@ async function WorkflowContent({ params, searchParams }: PageProps<"/workflows/[
           >
             {t.label}
             {t.id === "versions" && ` (${workflow.versions.length})`}
+            {t.id === "heals" && workflow.pending_heals > 0 && (
+              <span className="ml-1 rounded-full bg-warn-soft px-1.5 text-xs font-medium text-warn">{workflow.pending_heals}</span>
+            )}
           </Link>
         ))}
       </nav>
@@ -117,6 +122,13 @@ async function WorkflowContent({ params, searchParams }: PageProps<"/workflows/[
         <EditView key={version.id} workflowId={id} baseVersion={viewing} initial={version.spec} canActivate={isOwner} />
       )}
       {tab === "versions" && <VersionsView workflow={workflow} viewing={viewing} isOwner={isOwner} />}
+      {tab === "heals" && (
+        <HealsView
+          workflowId={id}
+          heals={(await api<Page<Heal>>(`/heals?workflow_id=${encodeURIComponent(id)}&limit=50`)).results}
+          isOwner={isOwner}
+        />
+      )}
     </div>
   );
 }

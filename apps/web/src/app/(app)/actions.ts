@@ -149,3 +149,14 @@ export async function cancelRun(runId: string): Promise<SaveResult> {
     throw err;
   }
 }
+
+export async function decideHeal(healId: string, decision: "approve" | "reject"): Promise<SaveResult> {
+  try {
+    await api(`/heals/${encodeURIComponent(healId)}/decision`, { method: "POST", body: JSON.stringify({ decision }) });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
