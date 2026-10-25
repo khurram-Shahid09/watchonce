@@ -17,6 +17,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; } /* .row, .progress etc. set display, which would otherwise win */
 body { margin: 0; width: 320px; font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--fg); background: var(--bg); }
 header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
 header strong { flex: 1; font-size: 14px; }
