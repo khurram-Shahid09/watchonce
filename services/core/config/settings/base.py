@@ -11,7 +11,8 @@ REPO_ROOT = CORE_DIR.parents[1]
 env = environ.Env()
 # Local development reads the repo-root .env. In containers the variables come from the environment.
 if (REPO_ROOT / ".env").is_file():
-    env.read_env(str(REPO_ROOT / ".env"), overwrite=False)
+    # parse_comments: .env.example documents values with trailing "# ..." comments.
+    env.read_env(str(REPO_ROOT / ".env"), overwrite=False, parse_comments=True)
 
 APP_ENV = env.str("APP_ENV", default="local")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     "accounts",
     "audit",
     "recordings",
+    "workflows",
+    "metering",
 ]
 
 MIDDLEWARE = [
@@ -192,6 +195,31 @@ RECORDING_MAX_EVENTS = 5000
 RECORDING_MAX_FRAMES = 300
 RECORDING_MAX_EVENTS_BYTES = 20 * 1024 * 1024
 RECORDING_MAX_FRAME_BYTES = 2 * 1024 * 1024
+
+
+# --- AI providers (engine/llm, docs/06-ai-pipeline.md) ---
+def _setting(name: str, default: str = "") -> str:
+    return env.str(name, default=default).strip()  # .env lines may carry padding before "# ..."
+
+
+LLM_PROVIDER = _setting("LLM_PROVIDER", "gemini").lower()  # claude | gemini | fake
+LLM_PROVIDER_UNDERSTAND = _setting("LLM_PROVIDER_UNDERSTAND")
+LLM_PROVIDER_SOP = _setting("LLM_PROVIDER_SOP")
+LLM_PROVIDER_REPAIR = _setting("LLM_PROVIDER_REPAIR")
+ANTHROPIC_API_KEY = _setting("ANTHROPIC_API_KEY")
+CLAUDE_MODEL = _setting("CLAUDE_MODEL") or "claude-opus-5-5"
+CLAUDE_EFFORT_UNDERSTAND = _setting("CLAUDE_EFFORT_UNDERSTAND") or "high"
+CLAUDE_EFFORT_SOP = _setting("CLAUDE_EFFORT_SOP") or "medium"
+CLAUDE_EFFORT_REPAIR = _setting("CLAUDE_EFFORT_REPAIR") or "high"
+GEMINI_API_KEY = _setting("GEMINI_API_KEY")
+GEMINI_MODEL = _setting("GEMINI_MODEL") or "gemini-3.8-flash"
+GEMINI_FALLBACK_MODELS = env.list(
+    "GEMINI_FALLBACK_MODELS", default=["gemini-3.6-flash", "gemini-3.5-flash"]
+)
+# Per-workspace monthly AI spend cap; compiles stop with a clear error once reached.
+LLM_MONTHLY_BUDGET_USD = env.float("LLM_MONTHLY_BUDGET_USD", default=10.0)
+COMPILE_MAX_FRAMES = 25  # screenshots per Understand call
+COMPILE_MAX_CANDIDATES = 120
 
 # --- Secrets vault ---
 SECRETS_MASTER_KEY = env.str("SECRETS_MASTER_KEY", default="")

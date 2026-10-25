@@ -12,3 +12,4 @@ CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
 CELERY_TASK_ALWAYS_EAGER = True
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 STORAGE_BACKEND = "memory"
+LLM_PROVIDER = "fake"  # tests never call a real AI

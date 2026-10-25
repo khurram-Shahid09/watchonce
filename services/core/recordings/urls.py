@@ -15,6 +15,11 @@ urlpatterns = [
         name="recording-complete",
     ),
     path(
+        "recordings/<str:recording_id>/compile",
+        views.RecordingCompileView.as_view(),
+        name="recording-compile",
+    ),
+    path(
         "recordings/<str:recording_id>/candidates",
         views.RecordingCandidatesView.as_view(),
         name="recording-candidates",

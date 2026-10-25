@@ -55,7 +55,7 @@ Every step has: `id` (stable, e.g. `s7`), `action`, `intent` (plain-English purp
 | `select` | `target`, `value` or `label` | Native `<select>` and common custom dropdowns (click + option) |
 | `check` / `uncheck` | `target` | |
 | `press` | `key` (e.g. `Enter`) and optional `target` | |
-| `wait_for` | `condition`: `url_matches`, `element_visible`, `text_visible`, `network_idle` | |
+| `wait_for` | `condition`: `url_matches`, `element_visible`, `text_visible`, `network_idle` | `url_matches` is a glob on the URL path: `/invoices/*` (`*` matches any characters). The compiler replaces path segments containing digits (record ids) with `*`. |
 | `assert` | `condition` (same as `wait_for`) | Fails the run if false. Generated after key steps. |
 | `extract` | `target`, `attribute` (`text` default), `output` (name), optional `pattern` (regex) | Fills a workflow output |
 

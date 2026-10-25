@@ -9,6 +9,7 @@ DAY_MS = 24 * 60 * 60 * 1000
 
 class RecordingSerializer(serializers.ModelSerializer):
     frame_count = serializers.IntegerField(read_only=True)
+    workflow_id = serializers.SerializerMethodField(help_text="Set once compiled.")
 
     class Meta:
         model = Recording
@@ -22,10 +23,16 @@ class RecordingSerializer(serializers.ModelSerializer):
             "duration_ms",
             "candidate_count",
             "error",
+            "error_code",
+            "workflow_id",
             "created_at",
             "uploaded_at",
         ]
         read_only_fields = fields
+
+    def get_workflow_id(self, recording: Recording) -> str | None:
+        workflow = getattr(recording, "workflow", None)  # reverse one-to-one; may not exist
+        return workflow.id if workflow is not None else None
 
 
 class RecordingCreateSerializer(serializers.Serializer):
