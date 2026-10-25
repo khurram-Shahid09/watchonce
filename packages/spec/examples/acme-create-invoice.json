@@ -35,7 +35,7 @@
           { "kind": "testid", "value": "new-invoice-btn" },
           { "kind": "role", "role": "button", "name": "New invoice" },
           { "kind": "text", "value": "New invoice", "exact": true },
-          { "kind": "css", "value": "#toolbar > button.btn-primary:nth-of-type(2)" }
+          { "kind": "css", "value": "#toolbar > form > button.btn-primary" }
         ],
         "fingerprint": {
           "tag": "button",

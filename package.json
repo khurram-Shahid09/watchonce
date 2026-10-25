@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev:web": "pnpm --filter @watchonce/web dev",
+    "dev:portal": "pnpm --filter @watchonce/acme-portal dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",

@@ -28,6 +28,7 @@
 | D7 | Data region | Default (US/EU) for MVP | Canadian region when a Canadian pilot asks |
 | D8 | License | ✅ **No license, private repo** (all rights reserved) | Revisit before making the repo public |
 | D9 | Timeline | 15 working days (demo-able cut at day 10) | Faster cut: skip batch + Google OAuth → demo at ~day 8 |
+| D10 | Demo portal hosting | Vercel as planned; move it to a container on the VPS if the "Portal v2" switch is unreliable there (it's held in server memory) | VPS from the start |
 
 ## Open product questions (answer during the pilot, not blocking)
 - Pricing unit: per workflow, per run, or per seat?
