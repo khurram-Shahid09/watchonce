@@ -1,0 +1,63 @@
+# Local development infrastructure. Run from the repo root:
+#   docker compose -f infra/docker-compose.yml up -d
+# Host ports avoid common local installs (Postgres on 5432 is often taken).
+name: watchonce
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: watchonce
+      POSTGRES_PASSWORD: watchonce
+      POSTGRES_DB: watchonce
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U watchonce -d watchonce"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # S3-compatible stand-in for Cloudflare R2 (MinIO no longer publishes images).
+  s3:
+    image: chrislusf/seaweedfs:4.48
+    command: ["server", "-dir=/data", "-s3", "-s3.port=8333", "-s3.config=/etc/seaweedfs/s3.json", "-ip.bind=0.0.0.0"]
+    ports:
+      - "${S3_HOST_PORT:-9000}:8333"
+    volumes:
+      - s3-data:/data
+      - ./seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:9333/cluster/status || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # One-shot: create the private dev bucket.
+  s3-init:
+    image: chrislusf/seaweedfs:4.48
+    depends_on:
+      s3:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c", "echo 's3.bucket.create -name watchonce-dev' | weed shell -master=s3:9333"]
+    restart: "no"
+
+volumes:
+  postgres-data:
+  redis-data:
+  s3-data:

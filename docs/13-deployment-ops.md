@@ -4,7 +4,7 @@
 
 | Env | Purpose | Where |
 |---|---|---|
-| `local` | Development | `docker compose up` (Postgres, Redis, API, workers, acme-portal, MinIO as local R2) + `pnpm dev` for web/extension |
+| `local` | Development | `docker compose up` (Postgres, Redis, API, workers, acme-portal, SeaweedFS as local S3/R2) + `pnpm dev` for web/extension |
 | `staging` | Demo + evals | VPS #1 (same as prod in MVP, separate compose project + DB) |
 | `prod` | Pilot customers / public demo | VPS + Vercel |
 

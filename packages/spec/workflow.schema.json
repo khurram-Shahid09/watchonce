@@ -1,0 +1,435 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://watchonce.dev/schemas/workflow/1.0.json",
+  "title": "WorkflowSpec",
+  "description": "WatchOnce workflow spec v1. Human-readable reference: docs/05-workflow-spec.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["spec_version", "name", "allowed_domains", "start_url", "inputs", "secrets", "outputs", "steps", "settings"],
+  "properties": {
+    "spec_version": { "const": "1.0" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "allowed_domains": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/Domain" }
+    },
+    "start_url": { "type": "string", "format": "uri", "pattern": "^https?://" },
+    "inputs": { "type": "array", "items": { "$ref": "#/$defs/Input" } },
+    "secrets": { "type": "array", "items": { "$ref": "#/$defs/SecretRef" } },
+    "outputs": { "type": "array", "items": { "$ref": "#/$defs/Output" } },
+    "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/Step" } },
+    "settings": { "$ref": "#/$defs/Settings" },
+    "source": { "$ref": "#/$defs/Source" }
+  },
+  "$defs": {
+    "Identifier": {
+      "description": "snake_case name used in templates, e.g. vendor_name.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "StepId": {
+      "description": "Stable step id, e.g. s7.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,31}$"
+    },
+    "Domain": {
+      "description": "Hostname (optionally with port), no scheme or path.",
+      "type": "string",
+      "pattern": "^(\\*\\.)?[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:[0-9]{1,5})?$"
+    },
+    "Template": {
+      "description": "String that may contain {{input}}, {{secrets.name.field}}, {{outputs.name}} and filters.",
+      "type": "string",
+      "maxLength": 4000
+    },
+    "Input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/Identifier" },
+        "type": { "enum": ["string", "number", "integer", "boolean", "date"] },
+        "required": { "type": "boolean", "default": true },
+        "example": { "type": ["string", "number", "integer", "boolean"] },
+        "description": { "type": "string", "maxLength": 500 },
+        "format_hint": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "SecretRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "fields"],
+      "properties": {
+        "name": { "$ref": "#/$defs/Identifier" },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/Identifier" }
+        }
+      }
+    },
+    "Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/Identifier" },
+        "type": { "enum": ["string", "number"] },
+        "description": { "type": "string", "maxLength": 500 }
+      }
+    },
+    "Settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_timeout_ms": { "type": "integer", "minimum": 100, "maximum": 300000, "default": 15000 },
+        "heal_policy": { "enum": ["approve", "auto"], "default": "approve" },
+        "auto_approve_heal_min_confidence": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.9 },
+        "slow_mo_ms": { "type": "integer", "minimum": 0, "maximum": 10000, "default": 0 }
+      }
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recording_id": { "type": "string" },
+        "compiled_by": { "type": "string" },
+        "compiled_at": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "TestIdLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "testid" },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "RoleLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "role"],
+      "properties": {
+        "kind": { "const": "role" },
+        "role": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "exact": { "type": "boolean" }
+      }
+    },
+    "TextLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "text" },
+        "value": { "type": "string", "minLength": 1 },
+        "exact": { "type": "boolean" }
+      }
+    },
+    "LabelLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "label" },
+        "value": { "type": "string", "minLength": 1 },
+        "exact": { "type": "boolean" }
+      }
+    },
+    "PlaceholderLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "placeholder" },
+        "value": { "type": "string", "minLength": 1 },
+        "exact": { "type": "boolean" }
+      }
+    },
+    "CssLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "css" },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "XPathLocator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "xpath" },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "Locator": {
+      "oneOf": [
+        { "$ref": "#/$defs/TestIdLocator" },
+        { "$ref": "#/$defs/RoleLocator" },
+        { "$ref": "#/$defs/TextLocator" },
+        { "$ref": "#/$defs/LabelLocator" },
+        { "$ref": "#/$defs/PlaceholderLocator" },
+        { "$ref": "#/$defs/CssLocator" },
+        { "$ref": "#/$defs/XPathLocator" }
+      ]
+    },
+    "Fingerprint": {
+      "description": "Recorded element descriptor used for L2 fuzzy matching.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tag": { "type": "string" },
+        "role": { "type": ["string", "null"] },
+        "accessible_name": { "type": ["string", "null"] },
+        "text": { "type": ["string", "null"] },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": { "type": ["string", "null"] }
+        },
+        "nearby_text": { "type": "array", "items": { "type": "string" } },
+        "bbox_norm": {
+          "description": "[x, y, width, height] normalized to the viewport (0..1).",
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "type": "number" }
+        },
+        "frame_path": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locators"],
+      "properties": {
+        "locators": {
+          "description": "Ordered most robust to least robust.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Locator" }
+        },
+        "fingerprint": { "$ref": "#/$defs/Fingerprint" },
+        "anchor_image_ref": { "type": "string" }
+      }
+    },
+
+    "UrlMatchesCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "const": "url_matches" },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "ElementVisibleCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target"],
+      "properties": {
+        "type": { "const": "element_visible" },
+        "target": { "$ref": "#/$defs/Target" }
+      }
+    },
+    "TextVisibleCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "const": "text_visible" },
+        "value": { "$ref": "#/$defs/Template" }
+      }
+    },
+    "NetworkIdleCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "network_idle" }
+      }
+    },
+    "Condition": {
+      "oneOf": [
+        { "$ref": "#/$defs/UrlMatchesCondition" },
+        { "$ref": "#/$defs/ElementVisibleCondition" },
+        { "$ref": "#/$defs/TextVisibleCondition" },
+        { "$ref": "#/$defs/NetworkIdleCondition" }
+      ]
+    },
+    "Checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["approval", "none"] },
+        "reason": { "type": "string", "maxLength": 500 }
+      }
+    },
+
+    "StepIntent": { "type": "string", "minLength": 1, "maxLength": 300 },
+    "TimeoutMs": { "type": "integer", "minimum": 100, "maximum": 300000 },
+
+    "NavigateStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "url"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "navigate" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "url": { "$ref": "#/$defs/Template" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" },
+        "assert_after": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "ClickStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "target"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "click" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "target": { "$ref": "#/$defs/Target" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" },
+        "assert_after": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "FillStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "target", "value"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "fill" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "target": { "$ref": "#/$defs/Target" },
+        "value": { "$ref": "#/$defs/Template" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" },
+        "assert_after": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "SelectStep": {
+      "description": "Exactly one of value (option value) or label (visible text).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "target"],
+      "oneOf": [{ "required": ["value"] }, { "required": ["label"] }],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "select" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "target": { "$ref": "#/$defs/Target" },
+        "value": { "$ref": "#/$defs/Template" },
+        "label": { "$ref": "#/$defs/Template" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" },
+        "assert_after": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "CheckStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "target"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "enum": ["check", "uncheck"] },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "target": { "$ref": "#/$defs/Target" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" },
+        "assert_after": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "PressStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "key"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "press" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "key": { "type": "string", "minLength": 1, "maxLength": 50 },
+        "target": { "$ref": "#/$defs/Target" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" },
+        "assert_after": { "$ref": "#/$defs/Condition" }
+      }
+    },
+    "WaitForStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "condition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "wait_for" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "condition": { "$ref": "#/$defs/Condition" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" }
+      }
+    },
+    "AssertStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "condition"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "assert" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "condition": { "$ref": "#/$defs/Condition" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" }
+      }
+    },
+    "ExtractStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "action", "intent", "target", "output"],
+      "properties": {
+        "id": { "$ref": "#/$defs/StepId" },
+        "action": { "const": "extract" },
+        "intent": { "$ref": "#/$defs/StepIntent" },
+        "target": { "$ref": "#/$defs/Target" },
+        "attribute": { "type": "string", "minLength": 1, "default": "text" },
+        "output": { "$ref": "#/$defs/Identifier" },
+        "pattern": { "type": "string", "format": "regex" },
+        "checkpoint": { "$ref": "#/$defs/Checkpoint" },
+        "timeout_ms": { "$ref": "#/$defs/TimeoutMs" },
+        "screenshot_ref": { "type": "string" }
+      }
+    },
+    "Step": {
+      "oneOf": [
+        { "$ref": "#/$defs/NavigateStep" },
+        { "$ref": "#/$defs/ClickStep" },
+        { "$ref": "#/$defs/FillStep" },
+        { "$ref": "#/$defs/SelectStep" },
+        { "$ref": "#/$defs/CheckStep" },
+        { "$ref": "#/$defs/PressStep" },
+        { "$ref": "#/$defs/WaitForStep" },
+        { "$ref": "#/$defs/AssertStep" },
+        { "$ref": "#/$defs/ExtractStep" }
+      ]
+    }
+  }
+}

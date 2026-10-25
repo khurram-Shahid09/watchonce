@@ -16,7 +16,7 @@ The choices favour **what Khurram already ships in production** (Next.js, Django
 | AI | **Pluggable `LLMProvider` interface** with two implementations: Claude (official `anthropic` Python SDK) and Gemini (official Google Gen AI SDK). Selected with `LLM_PROVIDER`. | Free Gemini tier for development; paid provider for demos and real data. Lets us compare models with evals. See [ADR-0005](adr/0005-pluggable-llm-provider.md). |
 | Default production model | **`claude-opus-5-5`** ($4 / $20 per 1M input/output tokens) | Best quality for understanding demonstrations and safe repair |
 | Database | **PostgreSQL 16** | JSONB for specs, relational for everything else |
-| Object storage | **Cloudflare R2** (S3-compatible) | Zero egress fees. Khurram already migrated PetX media to it. |
+| Object storage | **Cloudflare R2** (S3-compatible) | Zero egress fees. Khurram already migrated PetX media to it. Locally: **SeaweedFS** S3 gateway (MinIO stopped publishing container images in 2025). |
 | Realtime | **Django Channels (ASGI) + `channels-redis`** | Live run view and approval prompts over WebSockets. Workers publish frames to Redis. Channels fans them out. |
 | Auth | **`djangorestframework-simplejwt` (access + refresh) + `django-allauth` (Google OAuth) + a custom DRF authentication class for personal access tokens (extension)** | One user model for web + extension. SSO via WorkOS later. |
 | Tenancy | **Org-scoped model manager + DRF queryset/permission mixins** | Every query filtered by `org_id`; tested per endpoint |
@@ -44,4 +44,6 @@ These apply when `LLM_PROVIDER=claude`. The Gemini implementation maps the same 
 - **Computer use (v0.3, not MVP):** for non-DOM UIs (canvas, remote desktops), use `computer_toolset_20260801` on Opus 5.5 as a last-resort executor.
 
 ## Versions policy
-Pin exact versions in lockfiles (`uv.lock`, `pnpm-lock.yaml`). Renovate/Dependabot weekly. Don't adopt a release younger than 2 weeks.
+Pin exact versions in lockfiles (`uv.lock`, `pnpm-lock.yaml`). Renovate/Dependabot weekly. Don't adopt a release younger than 2 weeks. This is enforced by tooling: `exclude-newer` in `services/core/pyproject.toml` and `minimumReleaseAge` in `pnpm-workspace.yaml`.
+
+**Security exception:** a patch release that fixes a published advisory may be adopted immediately. List it by exact version in `minimumReleaseAgeExclude` with the advisory IDs, and remove the entry once it is older than 2 weeks. (First use: `next@16.4.3`, fixing two critical RCEs in 16.0.0–16.4.0.)
