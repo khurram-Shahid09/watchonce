@@ -14,7 +14,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <>
       <h1 className="mb-5 text-lg font-semibold">Sign in</h1>
-      <Suspense fallback={<AuthForm mode="login" />}>
+      <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
         <LoginForm searchParams={searchParams} />
       </Suspense>
     </>

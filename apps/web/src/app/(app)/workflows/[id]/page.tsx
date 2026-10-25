@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { api, ApiError } from "@/lib/api";
-import type { Heal, Me, Page, Run, Secret, Version, WorkflowDetail } from "@/lib/types";
+import type { Batch, Heal, Me, Page, Run, Secret, Version, WorkflowDetail } from "@/lib/types";
 
+import { BatchView } from "./batch-view";
 import { EditView } from "./edit-view";
 import { HealsView } from "./heals-view";
 import { RunView } from "./run-view";
@@ -15,6 +16,7 @@ import { VersionsView } from "./versions-view";
 
 const TABS = [
   { id: "run", label: "Run" },
+  { id: "batch", label: "Batch" },
   { id: "runs", label: "Runs" },
   { id: "steps", label: "Steps" },
   { id: "sop", label: "SOP" },
@@ -111,6 +113,13 @@ async function WorkflowContent({ params, searchParams }: PageProps<"/workflows/[
           secrets={await api<Secret[]>("/secrets")}
           isOwner={isOwner}
           isActive={viewing === active}
+        />
+      )}
+      {tab === "batch" && (
+        <BatchView
+          workflowId={id}
+          spec={version.spec}
+          batches={(await api<Page<Batch>>(`/workflows/${encodeURIComponent(id)}/batches?limit=20`)).results}
         />
       )}
       {tab === "runs" && (

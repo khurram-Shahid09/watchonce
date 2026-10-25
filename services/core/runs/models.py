@@ -6,6 +6,47 @@ from common.models import TimeStampedModel
 from common.tenancy import OrgOwnedModel
 
 
+class Batch(OrgOwnedModel, TimeStampedModel):
+    """Many runs of one workflow version from a CSV, executed one after another
+    (docs/08 "Batch runs")."""
+
+    class Status(models.TextChoices):
+        QUEUED = "queued"
+        RUNNING = "running"
+        FINISHED = "finished"  # every row ran (check the counts for failures)
+        CANCELLED = "cancelled"
+
+    id = PrefixedIdField(prefix="bat")
+    workflow = models.ForeignKey(
+        "workflows.Workflow", on_delete=models.CASCADE, related_name="batches"
+    )
+    version = models.ForeignKey(
+        "workflows.WorkflowVersion", on_delete=models.PROTECT, related_name="+"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.QUEUED)
+    file_name = models.CharField(max_length=200, blank=True)
+    columns = models.JSONField(default=list)  # CSV header, in order
+    rows = models.JSONField(default=list)  # the raw CSV rows (dicts), for the results file
+    column_map = models.JSONField(default=dict)  # input name -> CSV column
+    total = models.PositiveIntegerField(default=0)
+    succeeded = models.PositiveIntegerField(default=0)
+    failed = models.PositiveIntegerField(default=0)
+    approve_all = models.BooleanField(default=False)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "batches"
+
+    def __str__(self) -> str:
+        return f"{self.id} ({self.status} {self.succeeded}+{self.failed}/{self.total})"
+
+
 class Run(OrgOwnedModel, TimeStampedModel):
     """One execution of a pinned workflow version (docs/08-runner-and-self-healing.md)."""
 
@@ -42,6 +83,10 @@ class Run(OrgOwnedModel, TimeStampedModel):
     finished_at = models.DateTimeField(null=True, blank=True)
     artifacts_prefix = models.CharField(max_length=200, blank=True)
     llm_cost_usd = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+    batch = models.ForeignKey(
+        Batch, on_delete=models.CASCADE, null=True, blank=True, related_name="runs"
+    )
+    row_index = models.PositiveIntegerField(null=True, blank=True)  # 1-based CSV row
 
     class Meta:
         db_table = "runs"

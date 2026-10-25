@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 
-import { api, ApiError } from "@/lib/api";
+import { accessToken, api, ApiError } from "@/lib/api";
 import { API_URL, REFRESH_COOKIE, clearSession } from "@/lib/session";
 import type { Version, WorkflowSpec } from "@/lib/types";
 
@@ -153,6 +153,60 @@ export async function cancelRun(runId: string): Promise<SaveResult> {
 export async function decideHeal(healId: string, decision: "approve" | "reject"): Promise<SaveResult> {
   try {
     await api(`/heals/${encodeURIComponent(healId)}/decision`, { method: "POST", body: JSON.stringify({ decision }) });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
+
+export interface BatchResult extends SaveResult {
+  batchId?: string;
+  rowErrors?: Record<string, unknown>;
+}
+
+export async function createBatch(workflowId: string, form: FormData): Promise<BatchResult> {
+  const token = await accessToken();
+  if (!token) redirect("/login");
+  // Multipart goes straight through (api() speaks JSON).
+  const response = await fetch(`${API_URL}/api/v1/workflows/${encodeURIComponent(workflowId)}/batches`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+    cache: "no-store",
+  }).catch(() => null);
+  if (!response) return { ok: false, message: "Can't reach the WatchOnce API." };
+  if (response.status === 401) redirect("/login");
+  const body = (await response.json().catch(() => null)) as {
+    id?: string;
+    error?: { message?: string; details?: { errors?: Record<string, unknown>; missing?: string[] } };
+  } | null;
+  if (!response.ok) {
+    const missing = body?.error?.details?.missing;
+    return {
+      ok: false,
+      message: (body?.error?.message ?? "Couldn't start the batch.") + (missing ? ` Missing: ${missing.join(", ")}.` : ""),
+      rowErrors: body?.error?.details?.errors,
+    };
+  }
+  return { ok: true, batchId: body?.id };
+}
+
+export async function approveAllBatch(batchId: string): Promise<SaveResult> {
+  try {
+    await api(`/batches/${encodeURIComponent(batchId)}/approve-all`, { method: "POST" });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
+
+export async function cancelBatch(batchId: string): Promise<SaveResult> {
+  try {
+    await api(`/batches/${encodeURIComponent(batchId)}/cancel`, { method: "POST" });
     refresh();
     return { ok: true };
   } catch (err) {

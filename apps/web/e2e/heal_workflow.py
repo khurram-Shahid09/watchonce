@@ -74,6 +74,17 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Sign in").click()
     page.wait_for_url("**/workflows", wait_until="commit")
 
+    # Start from the version recorded on the original portal (an earlier test run may have
+    # approved a healed one already): make version 1 the active version again.
+    page.goto(f"{WEB}/workflows/{WORKFLOW}?tab=versions")
+    page.get_by_text("Version 1", exact=True).wait_for()  # the list streams in
+    row = page.locator("li").filter(has_text="Version 1").filter(has=page.get_by_role("button", name="Make active"))
+    if row.count():
+        page.once("dialog", lambda d: d.accept())
+        row.get_by_role("button", name="Make active").click()
+        expect(page.locator("li").filter(has_text="Version 1").get_by_text("active", exact=True)).to_be_visible()
+        print("  reset: version 1 is active again")
+
     set_variant("v2")
     try:
         run_id = run_once(page, "1")

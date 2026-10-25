@@ -59,7 +59,10 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 | Method | Path | Description |
 |---|---|---|
 | POST | `/workflows/{id}/runs` | `{inputs, version?}` → run (`202`). Inputs are typed per the spec (`422 invalid_inputs` with `details.inputs`); the saved logins it needs must exist (`409 missing_secrets`) |
-| POST | `/workflows/{id}/batches` | multipart CSV + `{column_map, approve_all?}` → `{batch_id}` |
+| POST | `/workflows/{id}/batches` | multipart: `file` (CSV, ≤ 500 rows, ≤ 2 MB), optional `column_map` (input → column; default matches headers like "Vendor Name" → `vendor_name`), optional `version`. Every row is validated first: `422 invalid_rows` with `details.errors` per row and nothing starts. → batch (`202`) |
+| GET | `/workflows/{id}/batches` | batches of a workflow |
+| POST | `/batches/{id}/approve-all` | owner: approve every checkpoint of the batch from now on, including the one waiting (audited) |
+| POST | `/batches/{id}/cancel` | stop the remaining rows |
 | GET | `/batches/{id}` | progress + counts |
 | GET | `/batches/{id}/results.csv` | results |
 | GET | `/runs` | filter by workflow, status, date |

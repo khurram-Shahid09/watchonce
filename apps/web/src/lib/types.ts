@@ -152,3 +152,33 @@ export interface Heal {
   cost_usd: string;
   created_at: string;
 }
+
+export interface Batch {
+  id: string;
+  workflow_id: string;
+  workflow_name: string;
+  version: number;
+  status: "queued" | "running" | "finished" | "cancelled";
+  file_name: string;
+  columns: string[];
+  column_map: Record<string, string>;
+  total: number;
+  succeeded: number;
+  failed: number;
+  approve_all: boolean;
+  approved_by: string | null;
+  created_at: string;
+  finished_at: string | null;
+}
+
+export interface BatchDetail extends Batch {
+  runs: {
+    id: string;
+    row_index: number;
+    status: RunStatus;
+    inputs: Record<string, unknown>;
+    outputs: Record<string, unknown>;
+    current_step_id: string;
+    error_message: string;
+  }[];
+}
