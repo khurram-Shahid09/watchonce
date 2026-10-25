@@ -17,6 +17,10 @@
 
 Permissions: `activeTab`, `scripting`, `storage`, `tabs`; `host_permissions` requested **at recording time for the current site only** (optional permissions). This is least privilege, and enterprise IT reviewers will check it.
 
+- The site permission lets the worker register the content script for that origin (`scripting.registerContentScripts`), so it follows the user across pages of the site.
+- Screenshots (`tabs.captureVisibleTab`) need **activeTab**, which Chrome grants when the user clicks the extension icon or uses its shortcut; a site permission alone is not enough. If Chrome withdraws it (e.g. after leaving the site), actions are still recorded and the popup shows "Screenshots paused: click the WatchOnce icon to resume them".
+- Navigation is observed with `tabs.onUpdated` (no `webNavigation` permission needed). The normalizer decides which navigations were caused by clicks.
+
 ## Captured events
 
 | DOM event | Recorded as | Notes |
@@ -65,11 +69,16 @@ Each event:
 | `input[type=password]` | **Never captured.** Value replaced with `__SECRET__`, flagged `value_masked: true`. |
 | `autocomplete` in (`cc-number`, `cc-csc`, `one-time-code`, `current-password`, `new-password`) | Same as password |
 | Values matching card-number (Luhn) / CNIC / SIN / SSN patterns | Masked, flagged as probable sensitive input |
-| Screenshots | Password fields blurred via a CSS overlay injected just before capture. User can draw **redaction boxes** during review (v0.2). |
+| Values matching those patterns *inside* free text | Only the matching part is replaced: `Card __SECRET__ on file` |
+| Screenshots | Password/OTP/card fields, and any field where a sensitive value was detected, are blurred via CSS injected just before capture; the recording pill is hidden. User can draw **redaction boxes** during review (v0.2). Known gap until then: a sensitive number paused mid-typing (before it's recognisable) can appear in a typing-pause frame. |
 
 ## Screenshots
-- `captureVisibleTab` as JPEG/WebP quality 70, max 1280 px wide
-- Taken **before** the action is dispatched (capture-phase listener, debounced 50 ms). Chrome rate-limits captures (~2/s), so queue them and skip duplicates when no DOM mutation occurred.
+- `captureVisibleTab` (JPEG) converted to **WebP** quality 70, max 1280 px wide, in the worker
+- Requested on **pointerdown/focus**, which fire before the click/typing, so the frame shows the page *before* the action. The content script announces the capture immediately (so the action's event can't overtake it), applies the blur, waits for paint (2 frames, at most 60 ms because frames stop while a page navigates away), then asks the worker to capture.
+- Chrome allows ~2 captures per second. Scheduling is **latest wins**: one capture runs, at most one waits, and a newer request replaces the waiting one. Before each attempt the worker checks the tab is still active and still on the same page; captures that would show the next page are skipped or discarded, never mislabelled.
+- Extra frames keep each page's "latest picture" current: one when a page finishes loading, and one when typing pauses (500 ms). An action whose own capture couldn't happen in time (e.g. a click that navigates instantly) gets the latest frame **of the same page**, never another page's.
+- Frames are skipped when nothing changed in the DOM since that page's last frame.
+- Only the recorded tab is ever captured (captureVisibleTab photographs whatever tab is active).
 
 ## Upload
 - On Stop: user enters the task description → `POST /recordings` → presigned URLs → parallel PUT of `events.json` + frames → `POST /recordings/{id}/complete`
