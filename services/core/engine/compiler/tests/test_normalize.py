@@ -288,3 +288,23 @@ def test_prefilled_values_become_fills_with_a_note() -> None:
     assert actions(result) == ["navigate", "fill", "fill", "click"]
     assert result["candidates"][1]["notes"] == ["prefilled"]
     assert result["candidates"][2]["value"] == "__SECRET__"
+
+
+def test_the_browsers_own_submit_click_after_enter_is_dropped() -> None:
+    pw = el("#pw", tag="input", role="textbox", name="Password", label_text="Password")
+    login = el("#login", tag="input", role="button", name="Login", attrs={"type": "submit"})
+    result = (
+        start()
+        .add("input", pw, value="__SECRET__", value_masked=True)
+        .add("press", pw, key="Enter")
+        .add("click", login, gap=1)  # fired by the browser 1 ms after Enter
+        .nav("http://acme.test/inventory", gap=3)
+        .run()
+    )
+    assert actions(result) == ["navigate", "fill", "press"]
+    assert result["candidates"][2]["navigates_to"] == "http://acme.test/inventory"
+    assert result["stats"]["dropped"]["implicit_submit_click"] == 1
+
+    # A real click on the button a moment later is still a step.
+    result = start().add("press", pw, key="Enter").add("click", login, gap=800).run()
+    assert actions(result) == ["navigate", "press", "click"]

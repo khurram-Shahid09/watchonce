@@ -8,7 +8,8 @@ LOGIN = """<!doctype html><title>Login</title>
 <h1>Sign in</h1>
 <label>Username <input id="u"></label>
 <label>Password <input id="p" type="password"></label>
-<button onclick="location='/form?user='+encodeURIComponent(u.value)">Sign in</button>"""
+<button onclick="location='/form?user='+encodeURIComponent(u.value)">Sign in</button>
+<button onclick="setTimeout(() => history.pushState({}, '', '/inbox'), 700)">Open inbox</button>"""
 
 FORM = """<!doctype html><title>New invoice</title>
 <h1>New invoice</h1>

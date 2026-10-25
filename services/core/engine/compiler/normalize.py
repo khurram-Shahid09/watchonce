@@ -12,6 +12,7 @@ removal is counted in ``stats.dropped`` so a surprising result can be explained.
 - navigations right after an action → ``navigates_to`` on that action; redirect chains
   collapse; navigations no action caused become ``navigate`` steps
 - form ``submit`` events and Tab presses → dropped (the click / Enter is the step)
+- the submit-button click a browser fires itself right after Enter in a form → dropped
 - typed then fully cleared → dropped
 """
 
@@ -23,6 +24,7 @@ from .locators import build_target
 from .recording import Element, Event, Recording
 
 REPEAT_CLICK_MS = 500
+IMPLICIT_SUBMIT_MS = 50  # Enter in a form: the browser clicks its submit button itself
 NAV_CAUSE_WINDOW_MS = 10_000
 REDIRECT_MS = 3_000
 NOISE_TEXT_LEN = 60
@@ -138,6 +140,8 @@ def _collect(events: list[Event], dropped: Counter[str]) -> list[_Item]:
                     if ev.prefilled:
                         item.notes.append("prefilled")
                     items.append(item)
+            case "click" if _implicit_submit(last, ev):
+                dropped["implicit_submit_click"] += 1
             case "click" | "dblclick":
                 if (
                     last is not None
@@ -165,6 +169,18 @@ def _collect(events: list[Event], dropped: Counter[str]) -> list[_Item]:
                 item.action, item.key = "press", ev.key
                 items.append(item)
     return [i for i in items if not _typed_then_cleared(i, dropped)]
+
+
+def _implicit_submit(last: _Item | None, ev: Event) -> bool:
+    el = ev.element
+    return (
+        last is not None
+        and last.action == "press"
+        and last.key == "Enter"
+        and ev.ts - last.ts <= IMPLICIT_SUBMIT_MS
+        and el is not None
+        and (el.attrs.get("type") == "submit" or (el.tag == "button" and not el.attrs.get("type")))
+    )
 
 
 def _typed_then_cleared(item: _Item, dropped: Counter[str]) -> bool:

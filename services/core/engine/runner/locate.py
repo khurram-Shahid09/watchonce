@@ -81,4 +81,4 @@ def find(page: Page, locators: list[dict[str, Any]], timeout_ms: int) -> Found:
                 return Found(_visible(candidate), index, spec)
         if time.monotonic() >= deadline:
             raise ElementNotFound(locators, counts)
-        time.sleep(POLL_S)
+        page.wait_for_timeout(POLL_S * 1000)  # keeps Playwright processing page events
