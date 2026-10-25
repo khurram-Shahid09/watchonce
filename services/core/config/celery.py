@@ -13,5 +13,5 @@ app.conf.task_queues = tuple(
     Queue(q, Exchange(q), routing_key=q) for q in ("compile", "run", "heal")
 )
 # Task modules outside Django apps (autodiscovery only searches INSTALLED_APPS).
-app.conf.imports = ("engine.compiler.tasks",)
+app.conf.imports = ("engine.compiler.tasks", "engine.runner.tasks")
 app.autodiscover_tasks()

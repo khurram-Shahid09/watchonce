@@ -51,21 +51,23 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 | Method | Path | Description |
 |---|---|---|
 | GET | `/secrets` | names + fields + timestamps only |
-| POST | `/secrets` | `{name, values: {username, password}}`, encrypted on receipt |
+| POST | `/secrets` | `{name, values: {username, password}}`, encrypted on receipt (owner). `409 secret_exists` |
 | PUT | `/secrets/{id}` | rotate |
 | DELETE | `/secrets/{id}` | |
 
 ## Runs
 | Method | Path | Description |
 |---|---|---|
-| POST | `/workflows/{id}/runs` | `{inputs, version?}` → `{run_id}` (`202`) |
+| POST | `/workflows/{id}/runs` | `{inputs, version?}` → run (`202`). Inputs are typed per the spec (`422 invalid_inputs` with `details.inputs`); the saved logins it needs must exist (`409 missing_secrets`) |
 | POST | `/workflows/{id}/batches` | multipart CSV + `{column_map, approve_all?}` → `{batch_id}` |
 | GET | `/batches/{id}` | progress + counts |
 | GET | `/batches/{id}/results.csv` | results |
 | GET | `/runs` | filter by workflow, status, date |
 | GET | `/runs/{id}` | run + steps + outputs + artifact URLs (presigned GET) |
 | POST | `/runs/{id}/cancel` | |
-| POST | `/runs/{id}/checkpoints/{step_id}` | `{decision: "approve" \| "reject", note?}` |
+| POST | `/runs/{id}/checkpoints/{step_id}` | `{decision: "approve" \| "reject", note?}`. Owners, or the member who started the run. `409 not_waiting` unless the run waits at that step |
+| GET | `/runs/{id}/events` | live run events as Server-Sent Events: `snapshot`, `frame {jpeg_b64, step_id}`, `step {step_id, status, rung, error}`, `checkpoint {step_id, reason, screenshot_ref}`, `approved`, `done {status, outputs}` |
+| GET | `/runs/{id}/screenshots/{name}` | `302` to a short-lived link |
 
 ## Heals
 | Method | Path | Description |
