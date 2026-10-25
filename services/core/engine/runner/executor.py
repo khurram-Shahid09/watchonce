@@ -340,7 +340,9 @@ class Executor:
                         return True
                     if time.monotonic() >= deadline:
                         return False
-                    time.sleep(0.2)
+                    # Not time.sleep: Playwright only records in-app URL changes
+                    # (pushState after a sign-in, SPA links) while it is waiting itself.
+                    page.wait_for_timeout(200)
             if kind == "text_visible":
                 text = self._value(cond["value"])
                 page.get_by_text(text).first.wait_for(state="visible", timeout=timeout)

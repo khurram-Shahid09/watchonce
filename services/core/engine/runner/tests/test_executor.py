@@ -297,3 +297,20 @@ def test_secrets_are_scrubbed_from_errors(make_account, browser, site) -> None:
     assert run.status == "failed"
     assert "hunter2-secret" not in run.error_message
     assert "•••" in run.error_message
+
+
+def test_in_app_url_changes_are_seen(make_account, browser, site) -> None:
+    """Single-page apps change the URL with pushState after async work (a sign-in, a
+    client-side link). The URL check must notice it while waiting."""
+    spec = spec_for(site.host)
+    spec["steps"] = [
+        spec["steps"][0],
+        {"id": "s2", "action": "click", "intent": "Open the inbox",
+         "target": {"locators": [{"kind": "role", "role": "button", "name": "Open inbox", "exact": True}]},
+         "assert_after": {"type": "url_matches", "value": "/inbox"}},
+    ]  # fmt: skip
+    spec["inputs"], spec["secrets"], spec["outputs"] = [], [], []
+    run = make_run(make_account("sara@acme.test"), spec, inputs={})
+    Executor(run, browser, live=FakeLive()).execute()
+    run.refresh_from_db()
+    assert run.status == "succeeded", run.error_message

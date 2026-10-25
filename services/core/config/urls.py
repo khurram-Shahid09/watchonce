@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import URLPattern, URLResolver, include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
@@ -22,3 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_v1)),
 ]
+
+# Development only: uvicorn doesn't serve static files the way runserver does (admin CSS).
+if settings.DEBUG:
+    urlpatterns += staticfiles_urlpatterns()
