@@ -19,7 +19,7 @@ Chrome → `chrome://extensions` → turn on **Developer mode** → **Load unpac
 
 To upload, connect once: open **Connect your WatchOnce workspace** at the bottom of the popup, enter the
 WatchOnce address (locally `http://localhost:8000`) and a personal access token (`pat_…`, from
-`POST /api/v1/tokens` until the dashboard's token page lands). The upload continues if you close the popup.
+`uv run python manage.py issue_token <email>` in services/core until the dashboard's token page lands). The upload continues if you close the popup.
 
 Shortcut: `Alt+Shift+R` (stops a running recording; otherwise opens the popup).
 

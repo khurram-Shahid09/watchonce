@@ -134,6 +134,7 @@ uv sync
 uv run python manage.py migrate
 uv run python manage.py setup_storage                       # bucket + CORS so the extension can upload
 uv run python manage.py createsuperuser
+uv run python manage.py issue_token you@example.com           # pat_… token for the recorder extension
 uv run uvicorn config.asgi:application --reload --port 8000   # API: /healthz, /readyz, /api/v1/docs/, /admin/
 uv run celery -A config worker -Q compile,run,heal --pool=solo -l info   # --pool=solo on Windows
 uv run pytest
