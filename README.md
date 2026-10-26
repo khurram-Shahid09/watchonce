@@ -148,6 +148,8 @@ pnpm dev:portal                                       # Acme demo portal on http
 pnpm --filter @watchonce/extension build              # recorder → load apps/extension/dist as an unpacked extension
 ```
 
+**Try the whole platform locally, with an enterprise use case and a demo-video kit:** [docs/demo/](docs/demo/README.md).
+
 AI quality evals (Postgres + the Acme portal must be up; `LLM_PROVIDER=fake` runs them offline for free), see [evals/README.md](evals/README.md):
 
 ```bash
