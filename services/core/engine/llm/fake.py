@@ -50,7 +50,9 @@ class FakeProvider:
     def understand(self, req: UnderstandRequest) -> tuple[Understanding, Usage]:
         steps: list[StepUnderstanding] = []
         inputs: dict[str, InputUnderstanding] = {}
-        has_password = any(c.get("value_masked") for c in req.candidates)
+        # A username is a login-looking field on the same page as a password (an email
+        # typed into a form later on is an input, not the login).
+        login_pages = {c.get("url") for c in req.candidates if c.get("value_masked")}
         host = ""
         for c in req.candidates:
             action, label = c["action"], _label(c)
@@ -62,7 +64,7 @@ class FakeProvider:
                 intent = f"Enter {label}"
                 value = c.get("value") or ""
                 if c.get("value_masked") or (
-                    has_password and any(h in label.lower() for h in _LOGIN_HINTS)
+                    c.get("url") in login_pages and any(h in label.lower() for h in _LOGIN_HINTS)
                 ):
                     field = "password" if c.get("value_masked") else "username"
                     source = ValueSource(

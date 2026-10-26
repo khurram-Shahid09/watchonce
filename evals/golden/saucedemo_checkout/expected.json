@@ -1,0 +1,69 @@
+{
+  "steps": [
+    [
+      "navigate",
+      null
+    ],
+    [
+      "fill",
+      "Username"
+    ],
+    [
+      "fill",
+      "Password"
+    ],
+    [
+      "click",
+      "Login"
+    ],
+    [
+      "click",
+      "Add to cart"
+    ],
+    [
+      "click",
+      null
+    ],
+    [
+      "click",
+      "Checkout"
+    ],
+    [
+      "fill",
+      "First Name"
+    ],
+    [
+      "fill",
+      "Last Name"
+    ],
+    [
+      "fill",
+      "Zip/Postal Code"
+    ],
+    [
+      "click",
+      "Continue"
+    ],
+    [
+      "click",
+      "Finish"
+    ]
+  ],
+  "input_steps": [
+    "First Name",
+    "Last Name",
+    "Zip/Postal Code"
+  ],
+  "checkpoints": [
+    "Finish"
+  ],
+  "replay": {
+    "First Name": "Imran",
+    "Last Name": "Ali",
+    "Zip/Postal Code": "75500"
+  },
+  "login": {
+    "username": "standard_user",
+    "password": "secret_sauce"
+  }
+}

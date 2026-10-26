@@ -55,7 +55,7 @@ def test_output_schema_is_closed_and_self_contained() -> None:
 def test_prompts_have_versions() -> None:
     for stage in ("understand", "sop"):
         text, version = load_prompt(stage, "claude")
-        assert version == f"{stage}-v1"
+        assert version == {"understand": "understand-v2", "sop": "sop-v1"}[stage]
         assert "data" in text and "instructions" in text  # the injection guard is present
 
 
@@ -67,6 +67,20 @@ def test_fake_provider_follows_the_rules() -> None:
     assert result.inputs[0].type == "date" and result.inputs[0].example == "2026-11-15"
     assert by_id["c4"].checkpoint
     assert usage.provider == "fake"
+
+
+def test_fake_provider_only_takes_a_username_from_the_login_page() -> None:
+    candidates = [
+        *CANDIDATES[:2],
+        {"id": "c5", "action": "fill", "url": "http://acme.test/login", "element": {"role": "textbox", "label": "Email"}, "value": "sara@acme.test"},
+        {"id": "c6", "action": "fill", "url": "http://acme.test/vendors", "element": {"role": "textbox", "label": "Email"}, "value": "ap@globex.example"},
+        {"id": "c7", "action": "click", "url": "http://acme.test/approvals", "element": {"role": "button", "name": "Reject"}},
+    ]  # fmt: skip
+    result, _ = FakeProvider().understand(UnderstandRequest("Add vendor", candidates))
+    by_id = {s.candidate_id: s for s in result.steps}
+    assert by_id["c5"].value_source.secret_field == "username"
+    assert by_id["c6"].value_source.kind == "input"  # a form's email, not the login
+    assert by_id["c7"].checkpoint  # rejecting is a decision, too
 
 
 # --- Claude (SDK mocked at the client boundary) ---

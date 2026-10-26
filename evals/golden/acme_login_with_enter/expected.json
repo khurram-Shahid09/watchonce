@@ -1,0 +1,61 @@
+{
+  "steps": [
+    [
+      "navigate",
+      null
+    ],
+    [
+      "fill",
+      "Username"
+    ],
+    [
+      "fill",
+      "Password"
+    ],
+    [
+      "press",
+      "Password"
+    ],
+    [
+      "click",
+      "Invoices"
+    ],
+    [
+      "click",
+      "New invoice"
+    ],
+    [
+      "select",
+      "Vendor"
+    ],
+    [
+      "fill",
+      "Amount"
+    ],
+    [
+      "fill",
+      "Due date"
+    ],
+    [
+      "click",
+      "Submit"
+    ]
+  ],
+  "input_steps": [
+    "Vendor",
+    "Amount",
+    "Due date"
+  ],
+  "checkpoints": [
+    "Submit"
+  ],
+  "replay": {
+    "Vendor": "City Power & Light",
+    "Amount": "640.10",
+    "Due date": "2026-11-02"
+  },
+  "login": {
+    "username": "sara",
+    "password": "acme-demo"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "steps": [
+    [
+      "navigate",
+      null
+    ],
+    [
+      "fill",
+      "Username"
+    ],
+    [
+      "fill",
+      "Password"
+    ],
+    [
+      "click",
+      "Sign in"
+    ],
+    [
+      "click",
+      "Approvals"
+    ],
+    [
+      "click",
+      "Approve"
+    ]
+  ],
+  "input_steps": [],
+  "checkpoints": [
+    "Approve"
+  ],
+  "replay": {},
+  "login": {
+    "username": "sara",
+    "password": "acme-demo"
+  }
+}

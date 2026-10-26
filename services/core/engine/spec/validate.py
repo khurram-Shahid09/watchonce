@@ -29,6 +29,11 @@ RISKY_VERBS = (
     "publish",
     "transfer",
     "confirm",
+    "reject",
+    "decline",
+    "finish",
+    "purchase",
+    "buy",
 )
 _RISKY_RE = re.compile(rf"\b({'|'.join(RISKY_VERBS)})\w*\b", re.IGNORECASE)
 _TEMPLATED_FIELDS = ("url", "value", "label")

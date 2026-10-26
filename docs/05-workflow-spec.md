@@ -99,7 +99,7 @@ Every step has: `id` (stable, e.g. `s7`), `action`, `intent` (plain-English purp
   "checkpoint": { "type": "approval", "reason": "Submits a payment request (irreversible)" } }
 ```
 
-`checkpoint.type`: `approval` (pause for a human) or `none`. The compiler proposes checkpoints for submit/pay/delete/send/approve-like intents. Users can add or remove them, but removing one is audit-logged.
+`checkpoint.type`: `approval` (pause for a human) or `none`. The compiler proposes checkpoints for submit/pay/delete/send/approve/reject/finish-like intents. Users can add or remove them, but removing one is audit-logged.
 
 ## Full example step list (abridged)
 
