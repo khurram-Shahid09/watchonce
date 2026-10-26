@@ -84,6 +84,22 @@ injection-banner → analytics.
 
 ---
 
+## Build the finished video (automated)
+```bash
+pnpm --filter @watchonce/extension build:e2e
+cd services/core
+uv run --with playwright python -I ../../demo/scripts/capture_recording.py   # scene 0, with the real extension
+uv run --with playwright python -I ../../demo/scripts/capture_scenes.py      # scenes 1-8
+cd ../.. && pnpm --filter @watchonce/extension build
+uv run --no-project --with edge-tts --with imageio-ffmpeg --with numpy python demo/scripts/make_video.py
+```
+`make_video.py` cuts the clips to the voice-over, speeds up the waiting, adds captions,
+title/end cards and a quiet synthesized music bed, and normalizes loudness to −14 LUFS.
+Output: `demo/out/watchonce-demo.mp4`. The voice is Microsoft's neural TTS via `edge-tts`
+(set `VOICE=en-US-AvaNeural` for a female voice); the narration and cut points are the
+`SEGMENTS` list at the top of the script. To use your own voice, replace the files in
+`demo/out/edit/voice/` with the same names (keep the `.txt` stamps).
+
 ## Hand-off for editing and voice-over
 When the footage is ready, tell me, and make sure these exist:
 - `demo/out/raw/00-live-recording.mp4` (your take) and the 8 captured clips

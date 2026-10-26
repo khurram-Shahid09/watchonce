@@ -14,6 +14,8 @@ legacy portal with no API).
 |---|---|
 | `demo/scripts/seed_demo.py` | Creates the *Acme Corp - Accounts Payable* workspace with three workflows from real recordings |
 | `demo/scripts/capture_scenes.py` | Records the 8 demo scenes as videos + stills (`demo/out/`) |
+| `demo/scripts/capture_recording.py` | Records scene 0: the task recorded with the real extension |
+| `demo/scripts/make_video.py` | Builds the finished video (voice, captions, music, cards) |
 | `demo/scripts/voiceover.ps1` | Draft voice-over (Windows voice) + captions for timing |
 | `demo/data/ap-invoices-october.csv` | 20 October invoices for the batch run |
 | `demo/data/new-vendors.csv` | 5 vendors to onboard |
