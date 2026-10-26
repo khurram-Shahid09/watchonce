@@ -28,6 +28,7 @@ from .types import (
 _RISKY = re.compile(rf"\b({'|'.join(RISKY_VERBS)})\w*\b", re.IGNORECASE)
 _DATE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
 _NUMBER = re.compile(r"^-?\d+(\.\d+)?$")
+FAKE_REPAIR_MARGIN = 0.05  # ahead of the runner-up, or it's a guess
 _LOGIN_HINTS = ("user", "email", "login", "account")
 
 
@@ -122,11 +123,14 @@ class FakeProvider:
         )
 
     def repair(self, req: RepairRequest) -> tuple[RepairResult, Usage]:
-        """The best-ranked candidate that can take the action, if it is reasonably similar.
-        No reasoning about the page: the runner's own checks still apply."""
+        """The best-ranked candidate that can take the action, if it is reasonably similar
+        and clearly ahead of the next one. No reasoning about the page, so it never guesses
+        between look-alikes; the runner's own checks still apply."""
         usage = Usage(provider=self.name, model=self.model, stop_reason="end_turn")
-        for c in req.candidates:
-            if c.get("score", 0) >= 0.5 and c.get("fits_action", True):
+        fitting = [c for c in req.candidates if c.get("fits_action", True)]
+        for n, c in enumerate(fitting[:1]):
+            runner_up = fitting[n + 1].get("score", 0) if len(fitting) > n + 1 else 0.0
+            if c.get("score", 0) >= 0.5 and c.get("score", 0) - runner_up >= FAKE_REPAIR_MARGIN:
                 return RepairResult(
                     decision="match",
                     candidate_id=c["id"],
@@ -137,7 +141,7 @@ class FakeProvider:
             decision="no_match",
             candidate_id="",
             confidence=0.0,
-            explanation="Nothing on the page is similar enough.",
+            explanation="Nothing on the page is clearly the recorded element.",
         ), usage
 
 

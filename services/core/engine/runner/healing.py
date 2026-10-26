@@ -28,6 +28,10 @@ L2_MARGIN = 0.10  # ...and this far ahead of the runner-up (an unambiguous winne
 L2_SELF_APPROVE = 0.90  # below this, the healed version needs a person's approval
 L3_FLOOR = 0.40  # an AI pick scoring below this is "a completely different element"
 L3_MIN_CONFIDENCE = 0.60
+# Clicking a button whose name shares no word with the recorded one: a real rename keeps
+# the rest of the fingerprint (place, nearby text, attributes), a neighbor doesn't.
+L3_RENAME_SCORE = 0.65
+L3_RENAME_CONFIDENCE = 0.90  # ...unless the AI is very sure
 STABLE_ATTRS = ("name", "type", "placeholder", "aria-label", "title", "href", "for")
 
 # Which roles can take which action (L3 verification).
@@ -151,7 +155,13 @@ def l2_pick(action: str, ranked: list[Ranked]) -> Ranked | None:
     return usable[0] if usable[0].score - runner_up >= L2_MARGIN else None
 
 
-def l3_verify(action: str, pick: Ranked, confidence: float) -> str | None:
+def l3_verify(
+    action: str,
+    pick: Ranked,
+    confidence: float,
+    ranked: list[Ranked] | None = None,
+    recorded_name: str = "",
+) -> str | None:
     """Why an AI pick can't be used, or None if it passes every check (docs/08 L3)."""
     if not pick.enabled:
         return "the chosen element is disabled"
@@ -161,6 +171,52 @@ def l3_verify(action: str, pick: Ranked, confidence: float) -> str | None:
         return f"it looks nothing like the recorded element (score {pick.score:.2f})"
     if confidence < L3_MIN_CONFIDENCE:
         return f"the AI wasn't confident enough ({confidence:.2f})"
+    if (
+        action == "click"
+        and pick.score < L3_RENAME_SCORE
+        and confidence < L3_RENAME_CONFIDENCE
+        and not _related_names(recorded_name, pick.element.accessible_name or "")
+    ):
+        return (
+            f"it is called “{pick.element.accessible_name}”, not “{recorded_name}”, and "
+            f"otherwise looks too different (score {pick.score:.2f}) to be the same button"
+        )
+    twin = _twin(action, pick, ranked or [])
+    if twin is not None:
+        return (
+            f"another “{twin.element.accessible_name}” on the page looks just the same "
+            f"(scores {pick.score:.2f} and {twin.score:.2f}), so the pick can't be checked"
+        )
+    return None
+
+
+def _related_names(recorded: str, now: str) -> bool:
+    """Share a word ("Submit" / "Submit for approval", "Username" / "User ID")? A button's
+    name is what it does; an unrelated name is a different button unless the AI is sure."""
+    words = lambda text: {w for w in re.findall(r"[a-z0-9]+", text.lower()) if len(w) >= 3}  # noqa: E731
+    before, after = words(recorded), words(now)
+    if not before:
+        return True  # nothing recorded to compare with
+    return any(a == b or (min(len(a), len(b)) >= 4 and (a.startswith(b) or b.startswith(a)))
+               for a in before for b in after)  # fmt: skip
+
+
+def _twin(action: str, pick: Ranked, ranked: list[Ranked]) -> Ranked | None:
+    """Another usable element with the same role and name that scores about the same: the
+    fingerprint can't tell them apart, so neither can a check of the AI's choice."""
+    name = " ".join((pick.element.accessible_name or "").lower().split())
+    if not name:
+        return None
+    for other in ranked:
+        if (
+            other.id != pick.id
+            and other.enabled
+            and other.element.role == pick.element.role
+            and " ".join((other.element.accessible_name or "").lower().split()) == name
+            and abs(other.score - pick.score) < L2_MARGIN
+            and action_fits(action, other.element)
+        ):
+            return other
     return None
 
 

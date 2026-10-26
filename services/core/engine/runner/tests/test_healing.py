@@ -132,3 +132,40 @@ def test_score_without_bbox_or_attributes_still_works() -> None:
     ]
     assert 0.4 < element.score < 1.0
     assert score(fp, element.element) == element.score
+
+
+def test_a_differently_named_button_needs_a_sure_ai() -> None:
+    # M4: "New invoice" moved into a menu; "Export CSV" next to it looks similar enough.
+    export = rank(FINGERPRINT, [candidate("e1", accessible_name="Export CSV", text="Export CSV",
+                                          id="btn-export", classes=["btn"], bbox=[780, 96, 110, 32],
+                                          nearby_text=["Invoices", "New invoice"])])[0]  # fmt: skip
+    assert export.score < 0.65
+    assert "not “New invoice”" in (l3_verify("click", export, 0.76, [], "New invoice") or "")
+    assert l3_verify("click", export, 0.95, [], "New invoice") is None  # the AI is very sure
+    log_in = rank(FINGERPRINT, [candidate("e4", accessible_name="Log in", text="Log in")])[0]
+    assert log_in.score >= 0.65  # same place and attributes: a real rename
+    assert l3_verify("click", log_in, 0.8, [], "Sign in") is None
+    renamed = rank(FINGERPRINT, [candidate("e2", accessible_name="Create invoice")])[0]
+    assert l3_verify("click", renamed, 0.7, [], "New invoice") is None  # shares "invoice"
+    field = rank(
+        FINGERPRINT,
+        [
+            candidate(
+                "e3", tag="input", role="textbox", accessible_name="Notes", attrs={"type": "text"}
+            )
+        ],
+    )[0]
+    assert l3_verify("fill", field, 0.7, [], "Description") is None  # labels change freely
+
+
+def test_look_alikes_cannot_be_verified() -> None:
+    # M5: a second "New invoice" button (recurring invoices) that scores about the same.
+    toolbar = candidate("e1")
+    recurring = candidate("e2", bbox=[900, 300, 115, 32], css_path="aside button")
+    ranked = rank(FINGERPRINT, [toolbar, recurring])
+    reason = l3_verify("click", ranked[0], 0.95, ranked, "New invoice")
+    assert reason is not None and "looks just the same" in reason
+    far = rank(
+        FINGERPRINT, [toolbar, candidate("e3", accessible_name="New invoice", role="link", tag="a")]
+    )
+    assert l3_verify("click", far[0], 0.95, far, "New invoice") is None  # a link isn't a twin

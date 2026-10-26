@@ -83,6 +83,23 @@ def test_fake_provider_only_takes_a_username_from_the_login_page() -> None:
     assert by_id["c7"].checkpoint  # rejecting is a decision, too
 
 
+def test_fake_repair_never_guesses_between_look_alikes() -> None:
+    from engine.llm.types import RepairRequest
+
+    def ask(*scores: float) -> str:
+        candidates = [
+            {"id": f"e{n}", "score": s, "fits_action": True} for n, s in enumerate(scores)
+        ]
+        request = RepairRequest(intent="Click New invoice", action="click", fingerprint={},
+                                candidates=candidates, previous_intent="", next_intent="",
+                                page_url="http://acme.test/", images=[])  # fmt: skip
+        return FakeProvider().repair(request)[0].decision
+
+    assert ask(0.7, 0.4) == "match"
+    assert ask(0.61, 0.59) == "no_match"  # too close to call
+    assert ask(0.45) == "no_match"
+
+
 # --- Claude (SDK mocked at the client boundary) ---
 
 

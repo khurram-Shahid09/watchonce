@@ -82,7 +82,9 @@ Accept if top score ≥ 0.75 **and** (top − second) ≥ 0.1 (an unambiguous wi
 2. Role is compatible with the action (e.g. `fill` → textbox/combobox)
 3. Fingerprint score ≥ 0.4 (sanity floor: blocks a "completely different" element)
 4. Model `confidence` ≥ 0.6
-5. If fails → L4
+5. **Clicks on a differently named button**: if the pick's name shares no word with the recorded name ("Export CSV" for "New invoice"), it needs a fingerprint score ≥ 0.65 (a real rename keeps its place, nearby text and attributes; a neighbor doesn't) or model confidence ≥ 0.9. Fields are exempt: labels change freely and a wrong field fails its post-condition.
+6. **No look-alikes**: if another usable element with the same role and name scores within 0.1 of the pick, the pick can't be verified → fail (M5: a second "New invoice" button).
+7. If fails → L4
 
 ### Persisting a heal
 - New locators are generated for the healed element (same algorithm as compile) and **prepended** to the step's `locators[]`. Old locators are kept as fallbacks.
@@ -98,7 +100,8 @@ Accept if top score ≥ 0.75 **and** (top − second) ≥ 0.1 (an unambiguous wi
 - **Scoring**: empty text on both sides counts as a match (input fields); attribute and nearby-text overlap are measured against the smaller set, so stripped test ids or a removed heading don't count against a match twice.
 - **A heal only counts if the step then works**: if a healed step's post-condition fails, the heal is marked `rejected` and is not saved.
 - **One pending version per run** holds all its heals (new locators first, old kept as fallbacks); the dashboard's Heals tab decides them together.
-- With `LLM_PROVIDER=fake`, L3 is a deterministic "closest match ≥ 0.5" rule, still subject to every L3 check.
+- With `LLM_PROVIDER=fake`, L3 is a deterministic rule: the closest match if it scores ≥ 0.5 **and** leads the runner-up by ≥ 0.05 (it never guesses between look-alikes), still subject to every L3 check.
+- Rules 5–6 came from the E2 eval (`pnpm eval:heal`): before them, M4 healed "New invoice" to "Export CSV" and M5+M7 picked the recurring-invoice button; both were caught by the post-condition, but only after the wrong click.
 - Tested on "Portal v2" (M1+M2+M3+M6+M7): 6 steps healed in one run; after approval the next run needed none (`apps/web/e2e/heal_workflow.py`).
 
 ## Live view
