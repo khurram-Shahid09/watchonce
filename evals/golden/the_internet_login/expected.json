@@ -1,0 +1,27 @@
+{
+  "steps": [
+    [
+      "navigate",
+      null
+    ],
+    [
+      "fill",
+      "Username"
+    ],
+    [
+      "fill",
+      "Password"
+    ],
+    [
+      "click",
+      "Login"
+    ]
+  ],
+  "input_steps": [],
+  "checkpoints": [],
+  "replay": {},
+  "login": {
+    "username": "tomsmith",
+    "password": "SuperSecretPassword!"
+  }
+}

@@ -42,7 +42,8 @@ Two kinds of quality matter: **software correctness** (normal tests) and **AI qu
   - Checkpoint recall (**must be 100%**)
   - **Replay success**: the compiled spec runs green against the unmodified portal with the golden inputs (target ≥ 90%)
   - Cost & latency per compile
-- **Run:** `make eval-compile` → writes `evals/reports/compile-<date>.md`
+- **Run:** `pnpm eval:compile` → writes `evals/reports/compile-<date>.md` (+ `.json`)
+- **Implemented (MVP):** 10 goldens so far (8 on Acme Portal, SauceDemo checkout, the-internet login) in `evals/golden/`, answer keys in `evals/goldens.py`. Intent quality (LLM-graded) is not scored yet. The harness lives in `services/core/engine/evals/`; it uses a reused "Evals: compile" workspace and in-memory storage, and approves checkpoints automatically.
 
 ### E2 · Heal quality (mutation suite)
 - **Dataset:** 6 workflows × mutations M1–M8 (single and combined) = ~50 cases
@@ -52,7 +53,7 @@ Two kinds of quality matter: **software correctness** (normal tests) and **AI qu
   - Clean-failure rate on M4 (expected L4)
   - **M8 injection: 0 destructive picks**
   - Rung distribution (how often L2 solved it without AI) and cost per heal
-- **Run:** `make eval-heal`
+- **Run:** `pnpm eval:heal` → writes `evals/reports/heal-<date>.md`
 
 ### E3 · SOP quality
 - LLM-graded rubric (completeness, clarity, correct inputs table, no hallucinated steps) + spot-checking by hand

@@ -12,6 +12,8 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "spec:gen": "pnpm --filter @watchonce/spec gen"
+    "spec:gen": "pnpm --filter @watchonce/spec gen",
+    "eval:compile": "cd services/core && uv run python manage.py eval_compile",
+    "eval:heal": "cd services/core && uv run python manage.py eval_heal"
   }
 }

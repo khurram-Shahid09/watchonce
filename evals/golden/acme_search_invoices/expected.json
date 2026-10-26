@@ -1,0 +1,43 @@
+{
+  "steps": [
+    [
+      "navigate",
+      null
+    ],
+    [
+      "fill",
+      "Username"
+    ],
+    [
+      "fill",
+      "Password"
+    ],
+    [
+      "click",
+      "Sign in"
+    ],
+    [
+      "click",
+      "Invoices"
+    ],
+    [
+      "fill",
+      "Search"
+    ],
+    [
+      "click",
+      "Go"
+    ]
+  ],
+  "input_steps": [
+    "Search"
+  ],
+  "checkpoints": [],
+  "replay": {
+    "Search": "City Power"
+  },
+  "login": {
+    "username": "sara",
+    "password": "acme-demo"
+  }
+}

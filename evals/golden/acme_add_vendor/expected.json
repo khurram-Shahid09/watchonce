@@ -1,0 +1,53 @@
+{
+  "steps": [
+    [
+      "navigate",
+      null
+    ],
+    [
+      "fill",
+      "Username"
+    ],
+    [
+      "fill",
+      "Password"
+    ],
+    [
+      "click",
+      "Sign in"
+    ],
+    [
+      "click",
+      "Vendors"
+    ],
+    [
+      "click",
+      "Add vendor"
+    ],
+    [
+      "fill",
+      "Name"
+    ],
+    [
+      "fill",
+      "Email"
+    ],
+    [
+      "click",
+      "Save vendor"
+    ]
+  ],
+  "input_steps": [
+    "Name",
+    "Email"
+  ],
+  "checkpoints": [],
+  "replay": {
+    "Name": "Initech LLC",
+    "Email": "billing@initech.example"
+  },
+  "login": {
+    "username": "sara",
+    "password": "acme-demo"
+  }
+}
