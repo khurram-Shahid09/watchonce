@@ -9,6 +9,7 @@ legacy portal with no API).
 | [01-local-test-guide.md](01-local-test-guide.md) | Start everything locally, then a feature-by-feature test checklist |
 | [02-enterprise-use-cases.md](02-enterprise-use-cases.md) | The AP month-end story, "why not an API / agent / RPA", more use cases, FAQ |
 | [03-demo-video-script.md](03-demo-video-script.md) | Shot list, voice-over, captions, and the hand-off for editing |
+| [04-why-watchonce.md](04-why-watchonce.md) | Short and simple: real uses, PetX, why I built it, going live |
 
 | Script / data | What it does |
 |---|---|
