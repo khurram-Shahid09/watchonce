@@ -14,3 +14,5 @@ if len(SECRET_KEY) < 50:  # noqa: F405
     raise RuntimeError("DJANGO_SECRET_KEY must be at least 50 characters in production")
 if not SECRETS_MASTER_KEY:  # noqa: F405
     raise RuntimeError("SECRETS_MASTER_KEY is required in production")
+
+SENTRY_ENVIRONMENT = env.str("SENTRY_ENVIRONMENT", default="production")  # noqa: F405

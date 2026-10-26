@@ -242,6 +242,7 @@ class ScreenshotView(_VersionMixin, generics.GenericAPIView):
 
     queryset = WorkflowVersion.objects.all()
     serializer_class = VersionSerializer
+    throttle_classes: list = []  # a steps page loads dozens at once; each is just a redirect
 
     @extend_schema(responses={302: None})
     def get(self, request: Request, *args, **kwargs) -> HttpResponseRedirect:

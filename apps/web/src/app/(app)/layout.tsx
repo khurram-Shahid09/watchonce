@@ -36,6 +36,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
             <Link href="/runs" className="text-sm text-muted hover:text-ink">
               Runs
             </Link>
+            <Link href="/analytics" className="text-sm text-muted hover:text-ink">
+              Analytics
+            </Link>
           </nav>
           <Suspense fallback={<span className="text-sm text-muted">…</span>}>
             <Account />

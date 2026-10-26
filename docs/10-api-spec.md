@@ -92,5 +92,9 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 | `/ws/org?token=` | `recording.compiled`, `run.finished`, `heal.pending` notifications |
 
 ## Rate limits (MVP)
-- 60 req/min per token for general endpoints
-- 10 compiles/hour and 200 runs/hour per org (configurable per plan)
+- 60 req/min per token for general endpoints (`API_RATE_PER_TOKEN`; the dashboard counts per user). Screenshot redirects are exempt (a page loads dozens).
+- 10 compiles/hour and 200 runs/hour per org (`ORG_COMPILES_PER_HOUR`, `ORG_RUNS_PER_HOUR`). A batch counts one run per row and is refused as a whole if it doesn't fit.
+- Over a limit: `429 rate_limited` with `details.limit`, `details.used`, `details.requested`. Workspace limits count work actually started (audit entries / runs), so retrying an idempotent call never uses quota.
+
+### Analytics response
+`GET /analytics/summary?range=7d|30d|90d` → `runs`, `succeeded`, `success_rate` (of finished runs, null when none), `hours_saved` (each workflow's `manual_duration_sec` × its successful runs), `workflows_without_duration`, `heals`, `heals_approved`, `heals_pending`, `llm_spend_usd`, `workflows[]` (per-workflow runs and hours saved) and `daily[]` (runs per day).

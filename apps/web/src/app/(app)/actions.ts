@@ -87,6 +87,20 @@ export async function recompile(recordingId: string): Promise<SaveResult> {
   }
 }
 
+export async function setManualDuration(workflowId: string, seconds: number | null): Promise<SaveResult> {
+  try {
+    await api(`/workflows/${encodeURIComponent(workflowId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ manual_duration_sec: seconds }),
+    });
+    refresh();
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
+
 export interface StartResult extends SaveResult {
   runId?: string;
   inputErrors?: Record<string, string>;

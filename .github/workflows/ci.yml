@@ -58,6 +58,19 @@ jobs:
         run: uv run python manage.py spectacular --file /dev/null --validate --fail-on-warn --settings=config.settings.test
       - name: Tests
         run: uv run pytest
+      # PYSEC-2026-4320 (certifi): the fix (2026.10.19) is younger than our 2-week rule; drop after 2026-11-02.
+      - name: Audit (Python dependencies)
+        run: uv export --frozen --no-dev --no-hashes --no-emit-project -o "$RUNNER_TEMP/requirements.txt" && uvx pip-audit --strict -r "$RUNNER_TEMP/requirements.txt" --ignore-vuln PYSEC-2026-4320
+
+  secrets:
+    name: secrets scan (gitleaks)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.24.2 git /repo --no-banner --redact --exit-code 1
 
   js:
     name: web + spec (TypeScript)

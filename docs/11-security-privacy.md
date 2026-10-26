@@ -47,10 +47,15 @@ Enterprises will ask four questions first: *What do you record? Where are our pa
 - **Later:** SOC 2 Type I readiness (policies, access reviews, change management via PRs, vendor reviews)
 
 ## Security testing checklist (pre-launch)
-- [ ] Automated test: no password value appears anywhere in stored recording data
-- [ ] Tenant isolation tests for every endpoint
-- [ ] Prompt-injection eval: mock portal pages containing malicious instructions. The healer must never pick a destructive element.
-- [ ] Domain allowlist test: a step navigating to a non-allowed host fails
-- [ ] Dependency scan (pip-audit, pnpm audit) in CI
-- [ ] Secrets scan (gitleaks) in CI
-- [ ] OWASP ZAP baseline scan against staging
+- [x] Automated test: no password value appears anywhere in stored recording data (extension `masking.test.ts`; `evals/make_goldens.py` checks every golden recording)
+- [x] Tenant isolation tests per app (accounts, workflows, secrets, runs, batches, heals, analytics); recordings rely on the same org-scoped mixin
+- [x] Prompt-injection eval: Acme M8 in E2 (`pnpm eval:heal`): 0 destructive picks. The healer must never pick a destructive element.
+- [x] Domain allowlist test: a step navigating to a non-allowed host fails (`test_navigation_outside_allowed_sites_is_blocked`)
+- [x] Dependency scan (pip-audit, pnpm audit) in CI
+- [x] Secrets scan (gitleaks, full history) in CI; test-only keys are listed in `.gitleaksignore`
+- [ ] OWASP ZAP baseline scan against staging (needs a staging deploy)
+
+### Also in place (MVP)
+- Security headers: the dashboard sends `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `nosniff`, a strict referrer policy and a Permissions-Policy; the API uses Django's `SecurityMiddleware` + clickjacking defaults, HSTS and SSL redirect in production.
+- Rate limits: per-token API limit and per-workspace compile/run quotas (docs/10 "Rate limits").
+- Errors go to Sentry when `SENTRY_DSN_API` is set, with `send_default_pii` off and request bodies dropped (they can hold run inputs).

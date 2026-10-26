@@ -8,6 +8,7 @@ import type { Batch, Heal, Me, Page, Run, Secret, Version, WorkflowDetail } from
 import { BatchView } from "./batch-view";
 import { EditView } from "./edit-view";
 import { HealsView } from "./heals-view";
+import { ManualTime } from "./manual-time";
 import { RunView } from "./run-view";
 import { RunsList } from "./runs-view";
 import { SopView } from "./sop-view";
@@ -77,6 +78,7 @@ async function WorkflowContent({ params, searchParams }: PageProps<"/workflows/[
           </span>
           <span>{version.spec.steps.length} steps</span>
           {version.compile_info.understand && <span>Compiled by {version.compile_info.understand.by}</span>}
+          <ManualTime workflowId={workflow.id} seconds={workflow.manual_duration_sec} />
         </div>
       </div>
 

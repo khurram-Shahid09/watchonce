@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from accounts.models import User
 from accounts.views_base import OrgScopedViewMixin
 from audit.service import record
+from common import quotas
 from common.exceptions import ApiError
 from common.storage import get_storage
 
@@ -89,6 +90,7 @@ class RecordingCompleteView(OrgScopedViewMixin, generics.GenericAPIView):
                 raise NotFound("Recording not found.")
             if recording.status == Recording.Status.UPLOADING:  # else: already done, idempotent
                 _verify_upload(recording)
+                quotas.check_compiles(self.org)
                 recording.status = Recording.Status.UPLOADED
                 recording.uploaded_at = timezone.now()
                 recording.save(update_fields=["status", "uploaded_at", "updated_at"])
@@ -147,6 +149,7 @@ class RecordingCompileView(OrgScopedViewMixin, generics.GenericAPIView):
                 status_code=409,
                 details={"status": recording.status},
             )
+        quotas.check_compiles(self.org)
         recording.status = Recording.Status.UPLOADED
         recording.error, recording.error_code = "", ""
         recording.save(update_fields=["status", "error", "error_code", "updated_at"])
