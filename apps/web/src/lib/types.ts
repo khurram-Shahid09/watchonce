@@ -182,3 +182,26 @@ export interface BatchDetail extends Batch {
     error_message: string;
   }[];
 }
+
+export interface AnalyticsSummary {
+  range_days: number;
+  since: string;
+  runs: number;
+  succeeded: number;
+  success_rate: number | null;
+  hours_saved: number;
+  workflows_without_duration: number;
+  heals: number;
+  heals_approved: number;
+  heals_pending: number;
+  llm_spend_usd: string;
+  workflows: {
+    workflow_id: string;
+    name: string;
+    runs: number;
+    succeeded: number;
+    manual_duration_sec: number | null;
+    hours_saved: number;
+  }[];
+  daily: { date: string; runs: number; succeeded: number }[];
+}

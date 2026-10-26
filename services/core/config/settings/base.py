@@ -114,7 +114,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_PAGINATION_CLASS": "common.pagination.CursorPagination",
+    "DEFAULT_THROTTLE_CLASSES": ["common.throttles.TokenRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {
+        "token": env.str("API_RATE_PER_TOKEN", default="60/min"),
         "login_ip": "20/min",
         "login_email": "5/min",  # with login_ip: brute-force lockout per account
         "register": "10/hour",
@@ -234,6 +236,9 @@ COMPILE_MAX_FRAMES = 25  # screenshots per Understand call
 COMPILE_MAX_CANDIDATES = 120
 
 # --- Runner (engine/runner, docs/08) ---
+# Per-workspace hourly limits (docs/10-api-spec.md "Rate limits"); see common/quotas.py.
+ORG_COMPILES_PER_HOUR = env.int("ORG_COMPILES_PER_HOUR", default=10)
+ORG_RUNS_PER_HOUR = env.int("ORG_RUNS_PER_HOUR", default=200)
 RUN_MAX_SECONDS = env.int("RUN_MAX_SECONDS", default=600)  # time waiting for approval excluded
 RUN_CHECKPOINT_TIMEOUT_S = env.int("RUN_CHECKPOINT_TIMEOUT_S", default=30 * 60)
 # Hosts a workflow may reach besides its allowed_domains (e.g. a CDN the app loads from).
@@ -252,3 +257,7 @@ LOGGING = {
     "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "line"}},
     "root": {"handlers": ["console"], "level": env.str("LOG_LEVEL", default="INFO")},
 }
+
+# --- Error reporting (off unless a DSN is set) ---
+SENTRY_DSN_API = env.str("SENTRY_DSN_API", default="")
+SENTRY_ENVIRONMENT = env.str("SENTRY_ENVIRONMENT", default="development")

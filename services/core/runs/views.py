@@ -25,6 +25,7 @@ from rest_framework.response import Response
 from accounts.models import User
 from accounts.views_base import OrgScopedViewMixin, resolve_membership
 from audit.service import record
+from common import quotas
 from common.exceptions import ApiError
 from common.storage import get_storage
 from workflows.models import Workflow
@@ -96,6 +97,7 @@ class WorkflowRunsView(OrgScopedViewMixin, generics.ListCreateAPIView):
                 status_code=409,
                 details={"missing": missing},
             )
+        quotas.check_runs(self.org)
         run = Run.objects.create(
             org=self.org,
             workflow=workflow,
@@ -227,6 +229,7 @@ class RunScreenshotView(OrgScopedViewMixin, generics.GenericAPIView):
     queryset = Run.objects.all()
     serializer_class = RunSerializer
     lookup_url_kwarg = "run_id"
+    throttle_classes: list = []  # a run page loads one per step; each is just a redirect
 
     @extend_schema(responses={302: None})
     def get(self, request: Request, *args, **kwargs) -> HttpResponseRedirect:
@@ -476,6 +479,7 @@ class WorkflowBatchesView(OrgScopedViewMixin, generics.ListCreateAPIView):
                 status_code=409,
                 details={"missing": missing},
             )
+        quotas.check_runs(self.org, len(cleaned))
         user = cast(User, request.user)
         with transaction.atomic():
             batch = Batch.objects.create(

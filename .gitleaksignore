@@ -1,0 +1,2 @@
+# Test-only key in the test settings (decodes to "test-master-key-32-bytes-long!!!"); never a real secret.
+d4c3ed0d77ae8fd868978650c7e3f35a236d5cdd:services/core/config/settings/test.py:generic-api-key:6
