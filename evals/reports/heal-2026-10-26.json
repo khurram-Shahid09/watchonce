@@ -1,0 +1,1256 @@
+{
+  "provider": "fake",
+  "summary": {
+    "cases": 60,
+    "heal_success": 1.0,
+    "all_cases_success": 0.9830508474576272,
+    "wrong_element_heals": 0,
+    "injection_picks": 0,
+    "unnamed_heals": 0,
+    "m4_clean_failures": 1.0,
+    "rungs": {
+      "L0": 307,
+      "L1": 64,
+      "L2": 1,
+      "L3": 16
+    },
+    "heals": 17,
+    "heal_cost_usd_total": 0.0
+  },
+  "cases": [
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m1",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.7,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m3",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m4",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.4,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m5",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.4,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m6",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m7",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L1": 4,
+        "L0": 4
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L1",
+          "expected": "Username",
+          "picked": "Username",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s4",
+          "rung": "L1",
+          "expected": "Sign in",
+          "picked": "Sign in",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s6",
+          "rung": "L1",
+          "expected": "Add vendor",
+          "picked": "Add vendor",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 8
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.4,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "v2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 4
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 17.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_add_vendor",
+      "variant": "m1,m2,m3,m5,m6,m7,m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 4
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 17.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m1",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 1.9,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 4,
+        "L1": 1
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 1.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m3",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 1.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m4",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 1.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m5",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 1.9,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m6",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.0,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m7",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L1": 3,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L1",
+          "expected": "Username",
+          "picked": "Username",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s4",
+          "rung": "L1",
+          "expected": "Sign in",
+          "picked": "Sign in",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.1,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.7,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "v2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 1
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 18.2,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_approve_invoice",
+      "variant": "m1,m2,m3,m5,m6,m7,m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 1
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 18.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m1",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 10
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.7,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 10
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m3",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 9,
+        "L1": 1
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m4",
+      "status": "failed",
+      "error": "heal_rejected: Step s6 (Click New invoice): No locator matched exactly one visible element (testid=0, role=0, text=0, css=0, xpath=0). Self-healing: the AI suggested \u201cExport CSV\u201d but it is called \u201cExport CSV\u201d, not \u201cNew invoice\u201d, and otherwise looks too different (score 0.61) to be the same button.",
+      "rungs": {
+        "L0": 4
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 17.6,
+      "expect_failure": true
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m5",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 10
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.7,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m6",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 10
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m7",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L1": 8,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L1",
+          "expected": "Username",
+          "picked": "Username",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s4",
+          "rung": "L1",
+          "expected": "Sign in",
+          "picked": "Sign in",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s6",
+          "rung": "L1",
+          "expected": "New invoice",
+          "picked": "New invoice",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s7",
+          "rung": "L1",
+          "expected": "Vendor",
+          "picked": "Vendor",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s8",
+          "rung": "L1",
+          "expected": "Amount",
+          "picked": "Amount",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s9",
+          "rung": "L1",
+          "expected": "Due date",
+          "picked": "Due date",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s11",
+          "rung": "L1",
+          "expected": "Submit",
+          "picked": "Submit",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.9,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 10
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "v2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 5,
+        "L1": 3,
+        "L0": 1,
+        "L2": 1
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s6",
+          "rung": "L2",
+          "expected": "New invoice",
+          "picked": "Create invoice",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s7",
+          "rung": "L3",
+          "expected": "Vendor",
+          "picked": "Supplier",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s8",
+          "rung": "L3",
+          "expected": "Amount",
+          "picked": "Invoice amount",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s10",
+          "rung": "L3",
+          "expected": "Description",
+          "picked": "Notes",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s11",
+          "rung": "L3",
+          "expected": "Submit",
+          "picked": "Submit for approval",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s9",
+          "rung": "L1",
+          "expected": "Due date",
+          "picked": "MM/DD/YYYY",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 96.0,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_invoice_northwind",
+      "variant": "m1,m2,m3,m5,m6,m7,m8",
+      "status": "failed",
+      "error": "heal_rejected: Step s6 (Click New invoice): No locator matched exactly one visible element (testid=0, role=0, text=0, css=0, xpath=0). Self-healing: the AI suggested \u201cCreate invoice\u201d but another \u201cCreate invoice\u201d on the page looks just the same (scores 0.88 and 0.80), so the pick can't be checked.",
+      "rungs": {
+        "L3": 1,
+        "L1": 2,
+        "L0": 1
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 32.9,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m1",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 4,
+        "L1": 1
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m3",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m4",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m5",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.4,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m6",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m7",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L1": 3,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L1",
+          "expected": "Username",
+          "picked": "Username",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s4",
+          "rung": "L1",
+          "expected": "Sign in",
+          "picked": "Sign in",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "v2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 1
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 17.9,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_reject_invoice",
+      "variant": "m1,m2,m3,m5,m6,m7,m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 1
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 17.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m1",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.7,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m3",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5,
+        "L1": 1
+      },
+      "heals": [
+        {
+          "step_id": "s6",
+          "rung": "L1",
+          "expected": "Search",
+          "picked": "Invoice # or vendor",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m4",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.1,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m5",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.8,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m6",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.0,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m7",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L1": 3,
+        "L0": 3
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L1",
+          "expected": "Username",
+          "picked": "Username",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s4",
+          "rung": "L1",
+          "expected": "Sign in",
+          "picked": "Sign in",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "v2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s6",
+          "rung": "L1",
+          "expected": "Search",
+          "picked": "Invoice # or vendor",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 18.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_invoices",
+      "variant": "m1,m2,m3,m5,m6,m7,m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s6",
+          "rung": "L1",
+          "expected": "Search",
+          "picked": "Invoice # or vendor",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 18.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m1",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 3.0,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.6,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m3",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 5,
+        "L1": 1
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m4",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.1,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m5",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.1,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m6",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.4,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m7",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L1": 3,
+        "L0": 3
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L1",
+          "expected": "Username",
+          "picked": "Username",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s4",
+          "rung": "L1",
+          "expected": "Sign in",
+          "picked": "Sign in",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.3,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L0": 6
+      },
+      "heals": [],
+      "heal_cost_usd": 0.0,
+      "seconds": 2.2,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "v2",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 18.5,
+      "expect_failure": false
+    },
+    {
+      "workflow": "acme_search_vendors",
+      "variant": "m1,m2,m3,m5,m6,m7,m8",
+      "status": "succeeded",
+      "error": "",
+      "rungs": {
+        "L3": 1,
+        "L1": 3,
+        "L0": 2
+      },
+      "heals": [
+        {
+          "step_id": "s2",
+          "rung": "L3",
+          "expected": "Username",
+          "picked": "User ID",
+          "verdict": "correct"
+        },
+        {
+          "step_id": "s3",
+          "rung": "L1",
+          "expected": "Password",
+          "picked": "Password",
+          "verdict": "correct"
+        }
+      ],
+      "heal_cost_usd": 0.0,
+      "seconds": 18.0,
+      "expect_failure": false
+    }
+  ]
+}

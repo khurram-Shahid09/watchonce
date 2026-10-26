@@ -50,7 +50,7 @@ class CaseResult:
     notes: list[str] = field(default_factory=list)
 
 
-def evaluate(golden: Golden, org, browser, *, run_replay: bool = True) -> CaseResult:
+def evaluate(golden: Golden, org, browsers, *, run_replay: bool = True) -> CaseResult:
     expected = golden.expected
     result = CaseResult(golden.id, expected_steps=len(expected["steps"]))
     compiled = compile_golden(org, golden)
@@ -104,7 +104,7 @@ def evaluate(golden: Golden, org, browser, *, run_replay: bool = True) -> CaseRe
     if run_replay:
         save_logins(org, compiled.spec, expected.get("login", {}))
         inputs = replay_inputs(compiled.spec, expected.get("replay", {}))
-        outcome = replay(org, compiled.workflow.active_version, inputs, browser)
+        outcome = replay(org, compiled.workflow.active_version, inputs, browsers)
         result.replay_status = outcome.status
         result.replay_error = outcome.error
         result.replay_seconds = round(outcome.seconds, 2)
@@ -214,15 +214,16 @@ def run_compile_eval(
     ):
         set_portal_variant("original")
     results: list[CaseResult] = []
-    with eval_workspace("Evals: compile", keep=keep) as org, chromium() as browser:
+    with eval_workspace("Evals: compile", keep=keep) as org, chromium() as browsers:
         for golden in goldens:
             print(f"  {golden.id} ...", flush=True)
-            results.append(evaluate(golden, org, browser, run_replay=run_replay))
+            results.append(evaluate(golden, org, browsers, run_replay=run_replay))
     summary = summarize(results)
     provider = settings.LLM_PROVIDER
     report = render(summary, results, provider)
     REPORT_DIR.mkdir(exist_ok=True)
-    stem = REPORT_DIR / f"compile-{date.today().isoformat()}"
+    partial = "-partial" if only or not run_replay else ""  # never overwrite the full report
+    stem = REPORT_DIR / f"compile-{date.today().isoformat()}{partial}"
     stem.with_suffix(".md").write_text(report, encoding="utf-8")
     stem.with_suffix(".json").write_text(
         json.dumps(

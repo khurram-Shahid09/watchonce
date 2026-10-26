@@ -174,7 +174,8 @@ def _ask_ai(
     pick = next((r for r in ranked if r.id == result.candidate_id), None)
     if pick is None:  # the model must pick from the list; anything else is ignored
         raise HealFailed("heal_rejected", "the AI suggested an element that wasn't on the list")
-    reason = l3_verify(step["action"], pick, result.confidence)
+    recorded_name = step["target"]["fingerprint"].get("accessible_name") or ""
+    reason = l3_verify(step["action"], pick, result.confidence, ranked, recorded_name)
     if reason:
         name = pick.element.accessible_name or pick.element.text or pick.element.tag
         raise HealFailed("heal_rejected", f"the AI suggested “{name}” but {reason}")

@@ -54,8 +54,8 @@ A **demo-able cut lands at day 10**. Days 11–15 harden it to "production-shape
 
 ## Definition of done (MVP)
 - [ ] All P0 user stories in [02](02-prd-mvp.md) pass acceptance criteria
-- [ ] E1 replay success ≥ 90%, checkpoint recall 100%
-- [ ] E2 heal success ≥ 80%, 0 wrong-element heals, 0 injection picks
+- [ ] E1 replay success ≥ 90%, checkpoint recall 100% (met with the offline `fake` provider on 10 goldens, 2026-10-26; re-run with Claude/Gemini before launch)
+- [ ] E2 heal success ≥ 80%, 0 wrong-element heals, 0 injection picks (met with `fake` on 60 cases, 2026-10-26; same re-run)
 - [ ] Security checklist ([11](11-security-privacy.md)) complete
 - [ ] Deployed with HTTPS, Sentry, backups
 - [ ] Demo video + README + architecture diagram published

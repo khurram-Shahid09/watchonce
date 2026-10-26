@@ -9,6 +9,7 @@ import json
 import os
 import re
 import time
+import zlib
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -51,6 +52,7 @@ def eval_workspace(name: str, keep: bool = False) -> Iterator[Any]:
     from accounts.models import Organization
     from common import storage
 
+    lock = _lock_workspace(name)
     old_backend = settings.STORAGE_BACKEND
     settings.STORAGE_BACKEND = "memory"
     storage.get_storage.cache_clear()
@@ -63,6 +65,24 @@ def eval_workspace(name: str, keep: bool = False) -> Iterator[Any]:
         storage.get_storage.cache_clear()
         if not keep:
             _empty_org(org)
+        lock.close()  # ends the session, which releases the lock
+
+
+def _lock_workspace(name: str):
+    """One eval per workspace at a time (it gets emptied). A connection of its own, since
+    replays close Django's connections."""
+    import psycopg
+
+    cfg = settings.DATABASES["default"]
+    conn = psycopg.connect(
+        dbname=cfg["NAME"], user=cfg["USER"], password=cfg["PASSWORD"],
+        host=cfg["HOST"] or "localhost", port=cfg["PORT"] or 5432, autocommit=True,
+    )  # fmt: skip
+    row = conn.execute("SELECT pg_try_advisory_lock(%s)", [zlib.crc32(name.encode())]).fetchone()
+    if not row or not row[0]:
+        conn.close()
+        raise RuntimeError(f"Another eval is using the {name!r} workspace; wait for it to end.")
+    return conn
 
 
 def _empty_org(org) -> None:
@@ -269,7 +289,7 @@ class Replay:
     events: list[dict[str, Any]] = field(default_factory=list)
 
 
-def replay(org, version, inputs: dict[str, Any], browser) -> Replay:
+def replay(org, version, inputs: dict[str, Any], browsers: "Browsers") -> Replay:
     from engine.runner.executor import Executor
     from runs.models import Run
 
@@ -283,24 +303,39 @@ def replay(org, version, inputs: dict[str, Any], browser) -> Replay:
     )
     live = AutoApprove()
     started = time.perf_counter()
-    Executor(run, browser, live=live).execute()
+    Executor(run, browsers.get(), live=live).execute()
     db.connections.close_all()  # Playwright's sync API runs Django on a second connection
     run.refresh_from_db()
     message = f"{run.error_code}: {run.error_message}" if run.error_code else ""
     return Replay(run.status, message, time.perf_counter() - started, run, live.events)
 
 
+class Browsers:
+    """Hands out a live Chromium, starting a new one if the last one died (a long eval
+    shouldn't turn every later case into a crash)."""
+
+    def __init__(self, playwright) -> None:
+        self.playwright = playwright
+        self.browser = None
+
+    def get(self):
+        if self.browser is None or not self.browser.is_connected():
+            self.browser = self.playwright.chromium.launch(headless=True)
+        return self.browser
+
+
 @contextlib.contextmanager
-def chromium() -> Iterator[Any]:
+def chromium() -> Iterator[Browsers]:
     from playwright.sync_api import sync_playwright
 
     os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")  # as engine/runner/browser.py
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browsers = Browsers(p)
         try:
-            yield browser
+            yield browsers
         finally:
-            browser.close()
+            if browsers.browser is not None and browsers.browser.is_connected():
+                browsers.browser.close()
             db.connections.close_all()
 
 

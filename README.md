@@ -148,6 +148,13 @@ pnpm dev:portal                                       # Acme demo portal on http
 pnpm --filter @watchonce/extension build              # recorder → load apps/extension/dist as an unpacked extension
 ```
 
+AI quality evals (Postgres + the Acme portal must be up; `LLM_PROVIDER=fake` runs them offline for free), see [evals/README.md](evals/README.md):
+
+```bash
+pnpm eval:compile     # E1: compile the golden recordings, score them, replay them → evals/reports/
+pnpm eval:heal        # E2: replay workflows against portal mutations M1–M8 (incl. prompt injection)
+```
+
 The workflow spec lives in [`packages/spec/workflow.schema.json`](packages/spec/workflow.schema.json). After changing it, regenerate both type bindings: `pnpm spec:gen` (TypeScript) and `uv run python scripts/gen_spec_models.py` in `services/core` (Pydantic). CI fails if either is stale.
 
 ## Author
