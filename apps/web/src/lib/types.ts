@@ -205,3 +205,39 @@ export interface AnalyticsSummary {
   }[];
   daily: { date: string; runs: number; succeeded: number }[];
 }
+
+export type AuthoringStatus = "queued" | "running" | "awaiting_approval" | "succeeded" | "failed" | "cancelled" | "timed_out";
+
+export const AUTHORING_FINISHED: AuthoringStatus[] = ["succeeded", "failed", "cancelled", "timed_out"];
+
+/** One thing the authoring agent did (or is doing). */
+export interface AgentStep {
+  n: number;
+  intent?: string;
+  action?: string;
+  status: "running" | "ok" | "failed" | "awaiting_approval" | "skipped";
+  error?: string;
+  explanation?: string;
+  value?: string;
+}
+
+export interface AuthoringSession {
+  id: string;
+  mode: "create" | "fix";
+  status: AuthoringStatus;
+  start_url: string;
+  instructions: string;
+  base_version: string | null;
+  source_run: string | null;
+  steps: AgentStep[];
+  question: { n?: number; intent?: string; reason?: string };
+  workflow: string | null;
+  workflow_name: string;
+  version_number: number | null;
+  error_code: string;
+  error_message: string;
+  llm_cost_usd: string;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+}

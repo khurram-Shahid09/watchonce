@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from common.exceptions import ApiError
 
-COMPILE_ACTIONS = ("recording.uploaded", "recording.recompile")
+COMPILE_ACTIONS = ("recording.uploaded", "recording.recompile", "authoring.started")
 
 
 def _hour_ago():

@@ -69,8 +69,18 @@ Conventions: cursor pagination (`?cursor=&limit=`), errors as `{ "error": { "cod
 | GET | `/runs/{id}` | run + steps + outputs + artifact URLs (presigned GET) |
 | POST | `/runs/{id}/cancel` | |
 | POST | `/runs/{id}/checkpoints/{step_id}` | `{decision: "approve" \| "reject", note?}`. Owners, or the member who started the run. `409 not_waiting` unless the run waits at that step |
-| GET | `/runs/{id}/events` | live run events as Server-Sent Events: `snapshot`, `frame {jpeg_b64, step_id}`, `step {step_id, status, rung, error}`, `checkpoint {step_id, reason, screenshot_ref}`, `approved`, `done {status, outputs}` |
+| GET | `/runs/{id}/events` | live run events as Server-Sent Events: `snapshot`, `frame {jpeg_b64, step_id}` (a screencast, about 4 a second while the page changes), `step {step_id, status, rung, error}`, `checkpoint {step_id, reason, screenshot_ref}`, `approved`, `done {status, outputs}` |
 | GET | `/runs/{id}/screenshots/{name}` | `302` to a short-lived link |
+
+## Authoring ([docs/17](17-authoring-agent.md))
+| Method | Path | Description |
+|---|---|---|
+| POST | `/authoring` | `{start_url, instructions}` → session (`202`), the agent builds a new workflow live. Or `{run_id, instructions}` for a finished run: the agent rebuilds that workflow from the hint, as a new version (activated when the caller is an owner). Counts against the hourly compile quota (`429 rate_limited`) |
+| GET | `/authoring` | recent sessions |
+| GET | `/authoring/{id}` | status, the agent's step log, the pending `question`, the resulting `workflow` and `version_number`, `error_message` (on success: a note, e.g. a risky step kept undone) |
+| POST | `/authoring/{id}/decision` | `{decision: "approve" \| "reject"}` for the risky step it waits on: approve does it now; reject keeps the step (with a checkpoint) undone and finishes. Owners, or the member who started it. `409 not_waiting` otherwise |
+| POST | `/authoring/{id}/cancel` | stop the agent; nothing is saved |
+| GET | `/authoring/{id}/events` | Server-Sent Events: `snapshot {session}`, `frame {jpeg_b64}`, `thinking {message?}`, `agent_step {n, intent, action, status, error, value}`, `checkpoint {n, intent, reason}`, `approved`, `done {status, workflow_id, version, error}` |
 
 ## Heals
 | Method | Path | Description |

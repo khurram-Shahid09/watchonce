@@ -31,6 +31,8 @@ flowchart LR
 3. **Run.** Run it once, or over 500 rows of a CSV, with a live view of the browser. Runs are **deterministic, with zero AI calls**.
 4. **Self-heal.** When the target app changes, WatchOnce tries backup locators, then similarity matching, and only then asks AI to pick the right element. Every repair is logged with before/after screenshots and needs approval.
 
+No time to record? **Describe the task instead.** An AI agent does it once in a real browser while you watch (pointer and all), asking before anything risky, and saves the same kind of replayable workflow. When a run fails, describe what to do differently and the agent rebuilds it live as a new version ([docs/17](docs/17-authoring-agent.md)).
+
 ## Why it's different
 
 | | Traditional RPA | AI browser agents | **WatchOnce** |
@@ -97,6 +99,7 @@ flowchart LR
 | 14 | [Roadmap & build plan](docs/14-roadmap-build-plan.md) | 15-day MVP plan and beyond |
 | 15 | [Demo script](docs/15-demo-script.md) | The 2-minute demo |
 | 16 | [Open questions](docs/16-open-questions.md) | Decisions and inputs needed |
+| 17 | [Authoring agent](docs/17-authoring-agent.md) | Workflows from plain instructions, live fixes for failed runs |
 | ADR | [Decision records](docs/adr/) | Why the big decisions were made |
 
 ## Roadmap

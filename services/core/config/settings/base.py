@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "metering",
     "secrets_vault",
     "runs",
+    "authoring",
 ]
 
 MIDDLEWARE = [
@@ -220,15 +221,19 @@ LLM_PROVIDER = _setting("LLM_PROVIDER", "gemini").lower()  # claude | gemini | f
 LLM_PROVIDER_UNDERSTAND = _setting("LLM_PROVIDER_UNDERSTAND")
 LLM_PROVIDER_SOP = _setting("LLM_PROVIDER_SOP")
 LLM_PROVIDER_REPAIR = _setting("LLM_PROVIDER_REPAIR")
+LLM_PROVIDER_AUTHOR = _setting("LLM_PROVIDER_AUTHOR")
 ANTHROPIC_API_KEY = _setting("ANTHROPIC_API_KEY")
 CLAUDE_MODEL = _setting("CLAUDE_MODEL") or "claude-opus-5-5"
 CLAUDE_EFFORT_UNDERSTAND = _setting("CLAUDE_EFFORT_UNDERSTAND") or "high"
 CLAUDE_EFFORT_SOP = _setting("CLAUDE_EFFORT_SOP") or "medium"
 CLAUDE_EFFORT_REPAIR = _setting("CLAUDE_EFFORT_REPAIR") or "high"
+CLAUDE_EFFORT_AUTHOR = (
+    _setting("CLAUDE_EFFORT_AUTHOR") or "medium"
+)  # one call per step: keep it quick
 GEMINI_API_KEY = _setting("GEMINI_API_KEY")
 GEMINI_MODEL = _setting("GEMINI_MODEL") or "gemini-3.8-flash"
 GEMINI_FALLBACK_MODELS = env.list(
-    "GEMINI_FALLBACK_MODELS", default=["gemini-3.6-flash", "gemini-3.5-flash"]
+    "GEMINI_FALLBACK_MODELS", default=["gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"]
 )
 # Per-workspace monthly AI spend cap; compiles stop with a clear error once reached.
 LLM_MONTHLY_BUDGET_USD = env.float("LLM_MONTHLY_BUDGET_USD", default=10.0)

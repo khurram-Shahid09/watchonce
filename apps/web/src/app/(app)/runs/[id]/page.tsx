@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { api, ApiError } from "@/lib/api";
 import { FINISHED, type RunDetail, type Version } from "@/lib/types";
 
+import { FixPanel } from "./fix-panel";
 import { LiveRun } from "./live-run";
 
 async function load<T>(path: string): Promise<T> {
@@ -59,6 +60,14 @@ async function RunContent({ params }: PageProps<"/runs/[id]">) {
             </dl>
           )}
         </section>
+      )}
+
+      {finished && ["failed", "timed_out"].includes(run.status) && (
+        <FixPanel
+          runId={run.id}
+          workflowId={run.workflow_id}
+          failedIntent={version.spec.steps.find((s) => s.id === run.current_step_id)?.intent}
+        />
       )}
 
       <LiveRun key={`${run.id}-${run.status}`} initial={run} spec={version.spec} />

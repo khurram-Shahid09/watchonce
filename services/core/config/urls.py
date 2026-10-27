@@ -13,6 +13,7 @@ api_v1: list[URLPattern | URLResolver] = [
     path("", include("workflows.urls")),
     path("", include("secrets_vault.urls")),
     path("", include("runs.urls")),
+    path("", include("authoring.urls")),
     path("", include("metering.urls")),
     path("audit", AuditLogListView.as_view(), name="audit-list"),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),

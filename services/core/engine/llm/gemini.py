@@ -13,8 +13,10 @@ from google.genai import errors, types
 from pydantic import BaseModel, ValidationError
 
 from .base import LLMError, load_prompt
-from .messages import Part, repair_parts, sop_parts, understand_parts
+from .messages import Part, author_parts, repair_parts, sop_parts, understand_parts
 from .types import (
+    AuthorAction,
+    AuthorRequest,
     Image,
     RepairRequest,
     RepairResult,
@@ -61,6 +63,9 @@ class GeminiProvider:
 
     def repair(self, req: RepairRequest) -> tuple[RepairResult, Usage]:
         return self._call("repair", repair_parts(req), RepairResult)
+
+    def author(self, req: AuthorRequest) -> tuple[AuthorAction, Usage]:
+        return self._call("author", author_parts(req), AuthorAction)
 
     def _call[T: BaseModel](
         self, stage: str, parts: list[Part], result_type: type[T]
