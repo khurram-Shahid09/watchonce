@@ -10,7 +10,7 @@ Understands lines like these (numbering and bullets are fine):
     Wait for Invoice created
     Read Invoice number as invoice_number
 
-Each line becomes one or more actions; progress is the number of successful steps so far.
+A first "Task: …" line names the workflow. Each other line becomes one or more actions; progress is the number of successful steps so far.
 Good for tests, CI and an offline demo; the real models handle free-form instructions.
 """
 
@@ -142,8 +142,10 @@ def author(req: AuthorRequest) -> AuthorAction:
         done -= 1
     if done >= len(ops):
         lines = [_BULLET.sub("", line).strip() for line in req.instructions.splitlines()]
-        # Name it after the first real task line (not "go to …" or "log in …").
-        name = next(
+        # A "Task: …" line names the workflow; otherwise the first real task line does
+        # (not "go to …" or "log in …").
+        task = next((line[5:].strip() for line in lines if line.lower().startswith("task:")), "")
+        name = task or next(
             (
                 line
                 for line in lines

@@ -74,12 +74,15 @@ The stage is `author` (prompt `engine/llm/prompts/author.md`). Gemini and Claude
 JSON-schema output (`AuthorAction`). `LLM_PROVIDER_AUTHOR` overrides the provider for this
 stage only. The fake provider follows one-line instructions mechanically ("Type X in Field",
 "Click Name", "Select X in Field", "Wait for Text", "Read Label as name", "Log in with my
-saved login name"), which is what the tests and offline demos use.
+saved login name"; a first "Task: …" line names the workflow), which is what the tests and
+offline demos use: start the run worker with `LLM_PROVIDER_AUTHOR=fake`.
 
 ## Limits
 
 - One browser tab; no file uploads, CAPTCHAs or 2FA prompts (same as runs).
 - An authoring session holds a run worker while it waits for your approval: run a second
   run worker if you build and run at the same time.
-- The free Gemini tier allows only a few calls a minute and a daily cap; a long build can hit
-  it. The agent waits and retries, but a used-up daily quota stops it until the next day.
+- The free Gemini tier is small: about 20 requests a day per model, and a build takes one
+  request per step (10–15 for a typical task), so about one build per model per day. The
+  agent waits and retries on short limits, but a used-up daily quota stops it until the next
+  day. Use a paid key or Claude for regular use, or the offline agent for demos.

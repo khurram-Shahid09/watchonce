@@ -233,7 +233,7 @@ CLAUDE_EFFORT_AUTHOR = (
 GEMINI_API_KEY = _setting("GEMINI_API_KEY")
 GEMINI_MODEL = _setting("GEMINI_MODEL") or "gemini-3.8-flash"
 GEMINI_FALLBACK_MODELS = env.list(
-    "GEMINI_FALLBACK_MODELS", default=["gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash"]
+    "GEMINI_FALLBACK_MODELS", default=["gemini-3.6-flash", "gemini-3.5-flash"]
 )
 # Per-workspace monthly AI spend cap; compiles stop with a clear error once reached.
 LLM_MONTHLY_BUDGET_USD = env.float("LLM_MONTHLY_BUDGET_USD", default=10.0)
