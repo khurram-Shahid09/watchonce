@@ -13,6 +13,8 @@ from engine.compiler.sop import render_basic_sop
 from engine.spec.validate import RISKY_VERBS
 
 from .types import (
+    AuthorAction,
+    AuthorRequest,
     InputUnderstanding,
     RepairRequest,
     RepairResult,
@@ -121,6 +123,11 @@ class FakeProvider:
         return SopResult(markdown=render_basic_sop(req.spec)), Usage(
             provider=self.name, model=self.model, stop_reason="end_turn"
         )
+
+    def author(self, req: AuthorRequest) -> tuple[AuthorAction, Usage]:
+        from .fake_author import author
+
+        return author(req), Usage(provider=self.name, model=self.model, stop_reason="end_turn")
 
     def repair(self, req: RepairRequest) -> tuple[RepairResult, Usage]:
         """The best-ranked candidate that can take the action, if it is reasonably similar

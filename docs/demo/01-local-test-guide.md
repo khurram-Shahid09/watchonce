@@ -111,6 +111,18 @@ Tick these off in order. Each one says what to do and what you should see.
 - [ ] **Approval stop found.** The *Submit* step has a "needs approval" badge.
 - [ ] **SOP.** *SOP* tab shows a written procedure, ready for an auditor or a new hire.
 
+### Build from instructions (no recording)
+- [ ] **Workflows → New from instructions**. Start link `http://localhost:3001/login`, instructions:
+      `Log in with my saved login localhost_login` / `Open the Invoices page` /
+      `Search for Litware Systems` / `Read the amount of the first invoice as invoice_amount`.
+      → you watch the agent work (pointer moves to each field), then **Workflow saved**.
+- [ ] Ask it to click **Submit** on a new invoice → it pauses with the button highlighted.
+      **Keep without doing** saves the step without submitting.
+- [ ] Break a run (portal **Portal v2**, or a wrong selector in Edit), open the failed run →
+      **Fix this workflow**, give a hint → the agent rebuilds it live as a new version.
+- Offline (no API key): start the run worker with `LLM_PROVIDER_AUTHOR=fake`; it follows
+  one-line instructions such as `Click Invoices`, `Type 980.50 in Amount`, `Read Invoice number as invoice_number`.
+
 ### Run
 - [ ] **One run, live.** *Run* tab → change the values (e.g. *Contoso Supplies*, `384.20`)
       → **Run now**. Watch the bot fill the portal in the live view.

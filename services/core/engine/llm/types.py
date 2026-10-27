@@ -132,6 +132,56 @@ class RepairResult(_Closed):
     explanation: str
 
 
+class AuthorAction(_Closed):
+    """The authoring agent's next move (engine/author). Every field is required; use "" when
+    it doesn't apply."""
+
+    status: Literal["act", "done", "stuck"]
+    action: Literal[
+        "click",
+        "fill",
+        "select",
+        "check",
+        "uncheck",
+        "press",
+        "navigate",
+        "wait_for",
+        "extract",
+        "",
+    ]
+    candidate_id: str  # one of the given ids; "" for navigate, wait_for and a page-wide press
+    intent: str  # imperative, human readable: "Enter the reference number"
+    value_kind: Literal["literal", "input", "secret", "none"]
+    value: str  # literal text, or the example value of an input
+    input_name: str  # value_kind=input: snake_case name
+    input_type: Literal["string", "number", "date", ""]
+    secret_name: str  # value_kind=secret: a saved login's name
+    secret_field: str  # value_kind=secret: e.g. "password"
+    key: str  # press: e.g. "Enter"
+    url: str  # navigate: absolute URL
+    wait_text: str  # wait_for: text that shows the page is ready
+    output_name: str  # extract: snake_case name of the value read
+    output_type: Literal["string", "number", ""]
+    pattern: str  # extract: optional regex for the value
+    risky: bool  # submits, pays, deletes, sends or posts something
+    explanation: str  # one sentence: why this step, or why done / stuck
+    workflow_name: str  # done: a short name for the whole task
+    summary: str  # done: one sentence on what the workflow does
+
+
+@dataclass
+class AuthorRequest:
+    instructions: str
+    start_url: str
+    page_url: str
+    page_title: str
+    candidates: list[dict[str, Any]]  # compact descriptors of visible interactive elements
+    page_text: str  # visible text of the page, trimmed
+    history: list[dict[str, Any]]  # steps done so far: intent, action, result
+    secrets: list[dict[str, Any]]  # saved logins usable here: name and field names only
+    images: list[Image] = field(default_factory=list)  # "now": the current page
+
+
 @dataclass
 class RepairRequest:
     intent: str

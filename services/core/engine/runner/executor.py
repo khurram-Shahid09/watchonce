@@ -25,6 +25,7 @@ from common.storage import get_storage
 from engine.spec.templating import TemplateError, render
 from engine.spec.validate import host_allowed
 
+from .live_view import Screencast, install_cursor, point_at
 from .locate import ElementNotFound, Found, find
 
 log = logging.getLogger(__name__)
@@ -70,6 +71,7 @@ class Executor:
         self.waited = 0.0  # time spent waiting for people, not counted against the limit
         self.seq = 0
         self.heals: list = []  # healer.Heal, one per step found again after a page change
+        self.screencast: Screencast | None = None
 
     # --- events -------------------------------------------------------------------------
 
@@ -99,6 +101,7 @@ class Executor:
             self.secrets = self._load_secrets()
             context = self._new_context()
             page = context.new_page()
+            self.screencast = Screencast(page, self.publish)
             for step in self.steps:
                 self._check_limits()
                 self._run_step(page, step)
@@ -110,6 +113,8 @@ class Executor:
             log.exception("run %s crashed", run.id)
             status, code, message = Run.Status.FAILED, "internal_error", self.scrub(str(exc))
         finally:
+            if self.screencast is not None:
+                self.screencast.stop()
             if context is not None:
                 with contextlib.suppress(PlaywrightError):
                     context.close()
@@ -138,6 +143,7 @@ class Executor:
         )
         context.set_default_timeout(self.default_timeout)
         context.route("**/*", self._guard)
+        install_cursor(context)
         return context
 
     def _guard(self, route: Route) -> None:
@@ -171,6 +177,8 @@ class Executor:
             org_id=run.org_id, run=run, step_id=step["id"], seq=self.seq, started_at=timezone.now()
         )
         self.publish({"type": "step", "step_id": step["id"], "status": "running"})
+        if self.screencast is not None:
+            self.screencast.step_id = step["id"]
         timeout = step.get("timeout_ms") or self.default_timeout
         try:
             found = self._find(page, step, timeout) if step.get("target") else None
@@ -256,14 +264,19 @@ class Executor:
             elif found is None and action not in ("press", "wait_for", "assert"):
                 raise RunFailed("invalid_step", f"Step {step['id']} has no target.")
             elif action == "click":
+                point_at(page, found.locator, click=True)  # type: ignore[union-attr]
                 found.locator.click(timeout=timeout)  # type: ignore[union-attr]
             elif action == "fill":
+                point_at(page, found.locator)  # type: ignore[union-attr]
                 found.locator.fill(self._value(step["value"]), timeout=timeout)  # type: ignore[union-attr]
             elif action == "select":
+                point_at(page, found.locator, click=True)  # type: ignore[union-attr]
                 self._select(page, step, found, timeout)  # type: ignore[arg-type]
             elif action == "check":
+                point_at(page, found.locator, click=True)  # type: ignore[union-attr]
                 found.locator.check(timeout=timeout)  # type: ignore[union-attr]
             elif action == "uncheck":
+                point_at(page, found.locator, click=True)  # type: ignore[union-attr]
                 found.locator.uncheck(timeout=timeout)  # type: ignore[union-attr]
             elif action == "press":
                 if found is not None:

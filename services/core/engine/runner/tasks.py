@@ -70,3 +70,27 @@ def execute_batch(batch_id: str) -> None:
             status=Batch.Status.FINISHED, finished_at=timezone.now()
         )
         db.connections.close_all()
+
+
+@shared_task(name="engine.runner.author_session", acks_late=False)
+def author_session(session_id: str) -> None:
+    """Build a workflow from instructions (engine/author). Like a run, never retried: it may
+    already have done something on the site."""
+    from authoring.models import AuthoringSession
+    from engine.author.agent import Author
+
+    from .browser import get_browser
+
+    claimed = AuthoringSession.objects.filter(
+        pk=session_id, status=AuthoringSession.Status.QUEUED
+    ).update(status=AuthoringSession.Status.RUNNING, started_at=timezone.now())
+    if not claimed:
+        log.info("authoring %s skipped: not queued", session_id)
+        return
+    session = AuthoringSession.objects.select_related("org", "base_version__workflow").get(
+        pk=session_id
+    )
+    try:
+        Author(session, get_browser()).execute()
+    finally:
+        db.connections.close_all()

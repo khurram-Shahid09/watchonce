@@ -23,6 +23,7 @@ def get_provider(stage: str) -> LLMProvider:
                 "understand": settings.CLAUDE_EFFORT_UNDERSTAND,
                 "sop": settings.CLAUDE_EFFORT_SOP,
                 "repair": settings.CLAUDE_EFFORT_REPAIR,
+                "author": settings.CLAUDE_EFFORT_AUTHOR,
             },
         )
     if name == "gemini":

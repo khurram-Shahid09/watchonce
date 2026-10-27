@@ -293,20 +293,32 @@ async def run_events(request: HttpRequest, run_id: str):
             status=exc.status_code,
         )
 
+    return stream_events(
+        run_id,
+        {"type": "snapshot", "run": snapshot},
+        done_status=snapshot["status"] if snapshot["status"] in Run.FINISHED else None,
+    )
+
+
+def stream_events(
+    channel_id: str, snapshot: dict[str, Any], *, done_status: str | None
+) -> StreamingHttpResponse:
+    """SSE: the snapshot, the latest frame, then live events from ``run:{id}:events`` until a
+    ``done`` event. Shared by runs and authoring sessions."""
     import redis.asyncio as aredis
     from django.conf import settings
 
     async def stream() -> AsyncIterator[bytes]:
         conn = aredis.Redis.from_url(settings.REDIS_URL)
         pubsub = conn.pubsub()
-        await pubsub.subscribe(live.events_channel(run_id))  # before the snapshot: no gaps
+        await pubsub.subscribe(live.events_channel(channel_id))  # before the snapshot: no gaps
         try:
-            yield _sse({"type": "snapshot", "run": snapshot})
-            frame = await sync_to_async(live.last_frame)(run_id)
+            yield _sse(snapshot)
+            frame = await sync_to_async(live.last_frame)(channel_id)
             if frame:
                 yield _sse(frame)
-            if snapshot["status"] in Run.FINISHED:
-                yield _sse({"type": "done", "status": snapshot["status"]})
+            if done_status:
+                yield _sse({"type": "done", "status": done_status})
                 return
             while True:
                 message = await pubsub.get_message(

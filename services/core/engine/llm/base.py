@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Protocol
 
 from .types import (
+    AuthorAction,
+    AuthorRequest,
     RepairRequest,
     RepairResult,
     SopRequest,
@@ -36,6 +38,7 @@ class LLMProvider(Protocol):
     def understand(self, req: UnderstandRequest) -> tuple[Understanding, Usage]: ...
     def write_sop(self, req: SopRequest) -> tuple[SopResult, Usage]: ...
     def repair(self, req: RepairRequest) -> tuple[RepairResult, Usage]: ...
+    def author(self, req: AuthorRequest) -> tuple[AuthorAction, Usage]: ...
 
 
 def load_prompt(stage: str, provider: str) -> tuple[str, str]:

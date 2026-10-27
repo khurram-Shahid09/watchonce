@@ -228,3 +228,49 @@ export async function cancelBatch(batchId: string): Promise<SaveResult> {
     throw err;
   }
 }
+
+export interface AuthoringResult extends SaveResult {
+  fieldErrors?: Record<string, string[]>;
+}
+
+/** Start the agent: a new workflow from instructions, or (with runId) a fix for a failed run. */
+export async function startAuthoring(input: { instructions: string; startUrl?: string; runId?: string }): Promise<AuthoringResult> {
+  let id: string;
+  try {
+    const session = await api<{ id: string }>("/authoring", {
+      method: "POST",
+      body: JSON.stringify({
+        instructions: input.instructions,
+        ...(input.startUrl ? { start_url: input.startUrl } : {}),
+        ...(input.runId ? { run_id: input.runId } : {}),
+      }),
+    });
+    id = session.id;
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, message: err.message, fieldErrors: err.details as Record<string, string[]> };
+    }
+    throw err;
+  }
+  redirect(`/authoring/${id}`);
+}
+
+export async function decideAuthoring(sessionId: string, decision: "approve" | "reject"): Promise<SaveResult> {
+  try {
+    await api(`/authoring/${encodeURIComponent(sessionId)}/decision`, { method: "POST", body: JSON.stringify({ decision }) });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
+
+export async function cancelAuthoring(sessionId: string): Promise<SaveResult> {
+  try {
+    await api(`/authoring/${encodeURIComponent(sessionId)}/cancel`, { method: "POST" });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { ok: false, message: err.message };
+    throw err;
+  }
+}
